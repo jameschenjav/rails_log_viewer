@@ -6,7 +6,7 @@ const consola = require('consola');
 
 const connectLogger = require('./logger');
 
-const host = '0.0.0.0';
+const host = '127.0.0.1';
 const port = 3333;
 
 function start() {
