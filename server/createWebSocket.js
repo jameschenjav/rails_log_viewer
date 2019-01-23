@@ -25,10 +25,13 @@ function upgradeHandler(ctx) {
   return null;
 }
 
-const onConnection = (ws) => {
+function onConnection(ws) {
   ws.isAlive = true;
   ws.on('pong', heartbeat);
-};
+  ws.on('message', (...args) => {
+    this.onMessage(...args);
+  });
+}
 
 const webSockets = [];
 
@@ -39,7 +42,8 @@ setInterval(() => {
 module.exports = () => {
   const ws = new WebSocket.Server({ noServer: true });
   ws.upgradeHandler = upgradeHandler.bind(ws);
-  ws.on('connection', onConnection);
+  ws.onMessage = () => {};
+  ws.on('connection', onConnection.bind(ws));
 
   webSockets.push(ws);
   return ws;

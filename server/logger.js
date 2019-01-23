@@ -11,7 +11,8 @@ const fstatAsync = promisify(fs.fstat);
 const openAsync = promisify(fs.open);
 const readAsync = promisify(fs.read);
 
-const wsLog = createWebSocket();
+const BUFFER_SIZE = 16 * 1024;
+
 const watcher = chokidar.watch([], {
   disableGlobbing: true,
   usePolling: true,
@@ -20,14 +21,21 @@ const watcher = chokidar.watch([], {
   },
   atomic: true,
 });
+
 const logger = {
   position: null,
   lines: null,
   last: null,
 };
-const BUFFER_SIZE = 16 * 1024;
+
+const wsLog = createWebSocket();
 const buffer = new Uint8Array(BUFFER_SIZE);
 const utf8Decoder = new StringDecoder('utf8');
+const env = {
+  mode: 'development',
+  port: 3000,
+};
+
 let railsPid = null;
 let logFilename = null;
 
@@ -40,9 +48,19 @@ async function readNext() {
     return readNext();
   }
 
-  logger.last = `${logger.last}${utf8Decoder.end(buffer.subarray(0, bytesRead))}`;
+  const text = `${logger.last}${utf8Decoder.end(buffer.subarray(0, bytesRead))}`;
+  const lastNewline = text.lastIndexOf('\n');
+  if (lastNewline) {
+    logger.last = text.slice(lastNewline + 1);
+    return text.slice(0, lastNewline);
+  }
+  logger.last = text;
   return null;
 }
+
+const ESC = '\u001b';
+const STR_RE_COLOR_CTL = `${ESC}\\[\\d*m`;
+const RE_COLOR_CTL_G = new RegExp(STR_RE_COLOR_CTL, 'g');
 
 function parseLines() {
   const { lines } = logger;
@@ -50,18 +68,23 @@ function parseLines() {
   return { lines };
 }
 
-watcher.on('change', async (...args) => {
-  console.log('onLogChanged', args);
+watcher.on('change', async (paths, stats) => {
+  console.log('updated', new Date().toISOString());
   const { position, lines, fd } = logger;
-  if (!(position && lines && fd)) return;
+  if (!(lines && fd && (position || position === 0))) return;
+  if (stats.size < position) {
+    Object.assign(logger, {
+      position: stats.size,
+      lines: [],
+      last: '',
+    });
+    return;
+  }
 
-  await readNext();
-  const tempLines = logger.last.split('\n');
-  const lineCount = tempLines.length;
+  const text = await readNext();
+  if (!text) return;
 
-  logger.lines = [...lines, tempLines.slice(0, lineCount - 2)];
-  logger.last = tempLines[lineCount - 1];
-
+  logger.lines = [...lines, ...text.trim().replace(RE_COLOR_CTL_G, '').split('\n')];
   const data = parseLines();
   const message = JSON.stringify({ type: 'LOG', data });
   wsLog.clients.forEach((ws) => {
@@ -108,7 +131,7 @@ async function watchLog() {
 }
 
 setInterval(async () => {
-  const pid = await findRubyServerPid();
+  const pid = await findRubyServerPid(env);
   if (railsPid !== pid) {
     railsPid = pid;
     if (!pid) {
@@ -117,7 +140,7 @@ setInterval(async () => {
       return;
     }
 
-    const logFile = await findRailsLogPath({ pid });
+    const logFile = await findRailsLogPath({ pid, ...env });
     console.log('watch', { pid, logFile });
     if (logFile !== logFilename) {
       logFilename = logFile;
@@ -126,4 +149,10 @@ setInterval(async () => {
   }
 }, 3000);
 
-module.exports = wsLog.upgradeHandler;
+module.exports = {
+  connect: wsLog.upgradeHandler,
+  setup: ({ mode, port }) => {
+    if (mode) env.mode = mode;
+    if (port) env.port = port;
+  },
+};

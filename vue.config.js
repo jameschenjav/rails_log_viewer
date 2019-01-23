@@ -20,12 +20,11 @@ module.exports = {
   productionSourceMap: process.env.NODE_ENV !== 'production',
   devServer: {
     host: '0.0.0.0',
-    port: 3333,
+    port: 8000,
     proxy: {
-      '/api': {
-        target: 'http://127.0.0.1:3000',
-        router: ({ hostname }) => `http://${hostname}:3000`,
-        changeOrigin: true,
+      '/log': {
+        target: 'http://127.0.0.1:3333',
+        ws: true,
       },
     },
     allowedHosts: [

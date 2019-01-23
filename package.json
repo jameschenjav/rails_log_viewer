@@ -10,6 +10,7 @@
   },
   "main": "server/index.js",
   "dependencies": {
+    "@koa/cors": "^2.2.3",
     "chokidar": "^2.0.4",
     "consola": "^2.3.2",
     "koa": "^2.6.2",
