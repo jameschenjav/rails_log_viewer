@@ -48,13 +48,17 @@ module RailsLogViewer
     end
 
     def connection_message
+      return @connection_message if @connection_message
+
       options = Rails::Server.new.options
-      @connection_message ||= {
+      @connection_message = {
         pid: Process.pid,
         path: Rails.root.to_s,
         mode: Rails.env.to_s,
         host: options[:Host],
         port: options[:Port],
+        ruby: RUBY_VERSION,
+        version: Rails.version,
       }.to_json.freeze
     end
 
@@ -75,7 +79,6 @@ module RailsLogViewer
       @events = {}
       subscribe_events
     rescue Exception => e
-      binding.pry
       nil
     end
 
@@ -124,9 +127,10 @@ module RailsLogViewer
       block_count = ((0.0 + zip_size) / BLOCK_LIMIT).ceil
       # 4 + 4 + 4 + 2
       head = "#{signature(3, raw_size, zip_size)}#{[block_count].pack 'S'}"
-      zipped.chars.each_slice(BLOCK_LIMIT).map.with_index do |block, index|
+      block_count.times do |index|
+        block = zipped.slice(index * BLOCK_LIMIT, BLOCK_LIMIT)
         # 14 + 2 + 2
-        yield "#{head}#{[index, block.size].pack 'S S'}#{block.join('')}"
+        yield "#{head}#{[index, block.size].pack 'S S'}#{block}"
       end
     end
 

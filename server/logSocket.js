@@ -31,7 +31,7 @@ const server = createServer((socket) => {
         switch (eventId & 0xFF) {
           case 1: {
             // sign[4], rawSize[4]
-            const message = JSON.parse(data.slice(8).toString());
+            const message = JSON.parse(data.slice(8, 8 + data.readUInt32LE(4)).toString());
             dispatch({ ...message, id });
             return;
           }
