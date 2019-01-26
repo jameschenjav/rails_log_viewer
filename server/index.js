@@ -6,8 +6,7 @@ const koaRouter = require('koa-router');
 const cors = require('@koa/cors');
 const consola = require('consola');
 
-const { setup: setupLogger, connect: connectLogger } = require('./logger');
-const createWebSocket = require('./createWebSocket');
+const connectLogger = require('./logger');
 
 const host = env.HOST || '127.0.0.1';
 const port = env.PORT || 3333;
@@ -20,11 +19,7 @@ function start() {
   app.use(cors());
   app.use(serve('dist'));
 
-  const echo = createWebSocket();
-  echo.onMessage = console.log;
-  setupLogger({ mode: env.RAILS_ENV, port: env.RAILS_PORT });
   router.get('/log', connectLogger);
-  router.get('/echo', echo.upgradeHandler);
   app.use(router.routes());
 
   app.listen(port, host);
