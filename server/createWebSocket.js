@@ -39,8 +39,8 @@ setInterval(() => {
   webSockets.forEach(ws => ws.clients.forEach(ping));
 }, 15000);
 
-module.exports = () => {
-  const ws = new WebSocket.Server({ noServer: true });
+module.exports = (options = {}) => {
+  const ws = new WebSocket.Server({ noServer: true, ...options });
   ws.upgradeHandler = upgradeHandler.bind(ws);
   ws.onMessage = () => {};
   ws.on('connection', onConnection.bind(ws));

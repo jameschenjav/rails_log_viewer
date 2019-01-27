@@ -1,7 +1,7 @@
 const createWebSocket = require('./createWebSocket');
 const { startServer, subscribe } = require('./logSocket');
 
-const wsLog = createWebSocket();
+const wsLog = createWebSocket({ perMessageDeflate: true });
 startServer();
 
 subscribe((type, data) => {
