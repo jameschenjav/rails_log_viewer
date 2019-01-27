@@ -1,4 +1,4 @@
-# config.middleware.insert_before Rack::Lock, RailsLogViewer if Rails.const_defined? 'Server'
+# config.middleware.use RailsLogViewer if Rails.const_defined? 'Server'
 class RailsLogViewer
   DEFAULT_PREFIX = '/_rlv/meta/'
 
@@ -11,9 +11,27 @@ class RailsLogViewer
 
   def call(env)
     path = env['PATH_INFO']
-    return @app.call(env) unless path.start_with? @api_prefix
+    if path.start_with? @api_prefix
+      dispath(path[@api_prefix.size .. -1])
+      return
+    end
 
-    dispath(path[@api_prefix.size .. -1])
+    begin
+      @app.call(env)
+    rescue Exception => e
+      oe = e.try(:original_exception)
+      ActiveSupport::Notifications.instrument(
+        'inspect_exception.rails_log_viewer',
+        exception: {
+          type: e.class.to_s,
+          message: e.message,
+          backtrace: e.backtrace,
+          stack: app_stack(e.backtrace),
+          original: oe&.class&.to_s,
+        },
+      )
+      raise(e)
+    end
   end
 
   private
@@ -25,17 +43,19 @@ class RailsLogViewer
     else
       [404, {}, []]
     end
+  rescue Exception => e
+    binding.pry
   end
 
   def get_all_models
     model_names = Dir.entries(Rails.root.join('app/models'))
       .map { |fn| fn.end_with?('.rb') ? fn.sub('.rb', '').camelize : nil }
       .compact
-    base_model_class = 'ApplicationRecord'.constantize rescue ActiveRecord::Base
+    base_model = defined?(ApplicationRecord) ? ApplicationRecord : ActiveRecord::Base
     model_names.map do |name|
       begin
         model = name.constantize
-        next if !(model < base_model_class) || model.abstract_class?
+        next if !(model < base_model) || model.abstract_class?
 
         [model.name, {
           table_name: model.table_name,
@@ -99,6 +119,7 @@ class RailsLogViewer
   WATCH_EVENTS = ([/\w+\.action_view/, /\w+\.active_record/] + %w[
     start_processing.action_controller
     process_action.action_controller
+    inspect_exception.rails_log_viewer
   ]).freeze
   BLOCK_SIZE = 8 * 1024
 
@@ -163,7 +184,7 @@ class RailsLogViewer
     end
   rescue Exception => e
     check_connection
-    send_log(id, data) if @checker
+    send_log(id, data) if @events
   end
 
   BLOCK_LIMIT = BLOCK_SIZE - 32
@@ -201,37 +222,56 @@ class RailsLogViewer
     [type | (@id << 8), *uint32_list].pack 'L*'
   end
 
-  def process_event(event, started, finished, id, data)
+  def app_stack(raw)
+    raw.find_all do |path|
+      path.include?(@app_path) && path.exclude?(__FILE__)
+    end.map do |path|
+      path[@app_path.size .. -1]
+    end
+  end
+
+  def process_event(event, started, finished, id, data, *extra)
     return unless @socket
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      @events[id] = { view: [], orm: [] }
+      @events[id] ||= { view: [], orm: [] }
       return
     end
 
-    data.merge!(started: started, finished: finished)
+    payload = data.merge(
+      event: event,
+      started: started,
+      finished: finished,
+    )
 
     if event == 'process_action.action_controller'
-      send_log(id, data)
+      if payload[:exception]
+        e = @events[id]
+        e.merge!(payload) if e
+      else
+        send_log(id, payload)
+      end
+      return
+    end
+
+    if event == 'inspect_exception.rails_log_viewer'
+      send_log(id, payload)
       return
     end
 
     e = @events[id]
     return unless e
 
-    stack = caller.find_all { |s| s.include?(@app_path) && s.exclude?(__FILE__) }
-    extra = { stack: stack, event: event }
-    if event =~ /\w+\.action_view/
-      extra = { stack: stack, event: event }
-      e[:view] << data.merge!(extra)
+    payload.merge!(stack: app_stack(caller))
+    key = if event =~ /\w+\.action_view/
+      :view
     else
       if event.start_with? 'sql.'
-        e[:orm] << data.merge!(extra)
-                        .merge!(binds: data[:binds].map { |b| [b[0].name, b[1]] })
-      else
-        e[:orm] << data.merge!(extra)
+        payload.merge!(binds: data[:binds].map { |b| [b[0].name, b[1]] })
       end
+      :orm
     end
+    e[key] << payload
   end
 end

@@ -15,16 +15,20 @@ const dispatch = ({ type = 'data', ...args }) => {
 };
 
 const server = createServer((socket) => {
-  const id = Date.now().toString(36);
+  const now = Date.now();
   const buffers = {};
+  const id = { established: now.toString(36).slice(2) };
 
-  console.log('connected', id);
+  console.log('connection established', id, (new Date(now)).toISOString());
   socket
     .on('data', async (data) => {
       try {
         const eventId = data.readUInt32LE(0);
         if (eventId === 0xFFFFFFFF) {
-          dispatch({ type: 'connected', id, ...JSON.parse(data.slice(4).toString()) });
+          const meta = JSON.parse(data.slice(4).toString());
+          id.pid = meta.pid;
+          dispatch({ type: 'connected', meta, id });
+          console.log('connected', (new Date()).toISOString());
           return;
         }
 
@@ -68,7 +72,7 @@ const server = createServer((socket) => {
             return;
           }
           default:
-            console.warn(`unsupported id ${eventId.toString(16)}`, data);
+            console.warn(`unsupported id ${eventId.toString(16)}`, data, id);
         }
       } catch (e) {
         console.error('[DATA]', id, e);
