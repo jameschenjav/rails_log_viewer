@@ -11,7 +11,8 @@ export default new Vuex.Store({
   },
   getters: {
     serverList: ({ servers }) => Object.values(servers),
-    current: ({ servers, rid }) => rid && servers[rid],
+    currentServer: ({ servers, rid }) => rid && servers[rid],
+    currentLogs: ({ logs, rid: id }) => logs.filter(({ rid }) => rid === id),
   },
   mutations: {
     updateStateSync: (state, payload) => {
@@ -19,7 +20,13 @@ export default new Vuex.Store({
     },
     addServer: ({ servers }, { server }) => Vue.set(servers, server.pid, server),
     deleteServer: ({ servers }, { rid }) => delete servers[rid],
-    selectServer: (state, rid) => {
+    selectServer: (state, { rid }) => {
+      if (rid === null) {
+        state.rid = null;
+        state.logs = [];
+        return;
+      }
+
       const server = state.servers[rid];
       if (server) {
         state.rid = rid;

@@ -248,7 +248,7 @@ class RailsLogViewer
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      @events[id] ||= { view: [], orm: [] }
+      @events[id] ||= { id: id, view: [], orm: [] }
       return
     end
 

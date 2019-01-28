@@ -1,12 +1,43 @@
 <template lang="pug">
   #app
-    pre
-      | Test 1 !== 2
+    .server-list(v-if="currentServer === null")
+      h1 Rails Log Viewer
+      .rails-list
+        rails-info(
+          v-for="server in serverList"
+          :key="server.pid"
+          :server="server"
+          @click="onClickServer"
+        )
+    main(v-else)
+      rails-info(:server="currentServer" @click="clearServer")
+      log-viewer(:logs="logs")
 </template>
 
 <script>
+import { mapState, mapGetters, mapActions } from 'vuex';
+
+import RailsInfo from './components/RailsInfo';
+import LogViewer from './components/LogViewer';
+
 export default {
   name: 'app',
+  components: { RailsInfo, LogViewer },
+  computed: {
+    ...mapState(['logs']),
+    ...mapGetters(['serverList', 'currentServer']),
+  },
+  methods: {
+    ...mapActions(['commitUpdate']),
+
+    onClickServer({ pid: rid }) {
+      this.commitUpdate({ name: 'selectServer', rid });
+    },
+
+    clearServer() {
+      this.commitUpdate({ name: 'selectServer', rid: null });
+    },
+  },
 };
 </script>
 
@@ -14,14 +45,40 @@ export default {
 @font-face
   font-family "Fira Code"
   src: url("../assets/FiraCode-Regular.woff2") format("woff2")
+*
+  box-sizing border-box
+body
+  margin 0
+  padding 0
 #app
   font-family 'Avenir', Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
-  text-align center
   color #2c3e50
-  margin-top 60px
+  margin 10px auto
+  max-width 1600px
+  display block
+  position relative
+  height calc(100vh - 20px)
+  overflow hidden
 pre, code
   font-family 'Fira Code', monospace
   font-variant-ligatures contextual
+a
+  text-decoration none
+  color #07a
+  &:visited
+    color #07a
+  &.file, &.file:visited
+    color #c7254e
+
+.rails-list
+  padding: 5px 15px
+  border-radius 10px
+  background-color #EEE
+
+main
+  display flex
+  flex-direction column
+  height 100%
 </style>
