@@ -29,7 +29,7 @@ const server = createServer((socket) => {
         if (eventId === 0xFFFFFFFF) {
           const meta = JSON.parse(data.slice(4).toString());
           buffers.rid = meta.pid;
-          connectedRails[meta.pid] = { meta };
+          connectedRails[meta.pid] = meta;
           dispatch({ type: 'connected', meta });
           console.log('connected', (new Date()).toISOString(), meta);
           return;
