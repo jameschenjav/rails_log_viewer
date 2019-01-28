@@ -14,29 +14,33 @@ const dispatch = ({ type = 'data', ...args }) => {
   receivers.forEach(fn => fn(type, args));
 };
 
+const connectedRails = {};
+
 const server = createServer((socket) => {
   const now = Date.now();
   const buffers = {};
-  const id = { established: now.toString(36).slice(2) };
+  const established = now.toString(36).slice(2);
 
-  console.log('connection established', id, (new Date(now)).toISOString());
+  console.log('connection established', established, (new Date(now)).toISOString());
   socket
     .on('data', async (data) => {
       try {
         const eventId = data.readUInt32LE(0);
         if (eventId === 0xFFFFFFFF) {
           const meta = JSON.parse(data.slice(4).toString());
-          id.pid = meta.pid;
-          dispatch({ type: 'connected', meta, id });
-          console.log('connected', (new Date()).toISOString());
+          buffers.rid = meta.pid;
+          connectedRails[meta.pid] = { meta };
+          dispatch({ type: 'connected', meta });
+          console.log('connected', (new Date()).toISOString(), meta);
           return;
         }
 
+        const { rid } = buffers;
         switch (eventId & 0xFF) {
           case 1: {
             // sign[4], rawSize[4]
             const message = JSON.parse(data.slice(8, 8 + data.readUInt32LE(4)).toString());
-            dispatch({ ...message, id });
+            dispatch({ ...message, rid });
             return;
           }
           case 2: {
@@ -44,7 +48,7 @@ const server = createServer((socket) => {
             const size = data.readUInt32LE(8);
             const raw = await inflate(data.slice(12, 12 + size));
             const message = JSON.parse(raw.toString());
-            dispatch({ ...message, id });
+            dispatch({ ...message, rid });
             return;
           }
           case 3: {
@@ -67,25 +71,29 @@ const server = createServer((socket) => {
             if (buff.count === buff.total) {
               delete buffers[eventId];
               const message = JSON.parse((await inflate(buff.data)).toString());
-              dispatch({ ...message, id });
+              dispatch({ ...message, rid });
             }
             return;
           }
           default:
-            console.warn(`unsupported id ${eventId.toString(16)}`, data, id);
+            console.warn(`unsupported id ${eventId.toString(16)}`, data, rid);
         }
       } catch (e) {
-        console.error('[DATA]', id, e);
+        console.error('[DATA]', buffers.rid, e);
       }
     })
     .on('error', (error) => {
-      console.error('[ERROR]', id, error);
+      console.error('[ERROR]', buffers.rid, error);
     })
     .on('end', () => {
-      dispatch({ type: 'end', id });
-      console.log('disconnected', id);
+      const { rid } = buffers;
+      delete connectedRails[rid];
+      dispatch({ type: 'end', rid });
+      console.log('disconnected', rid);
     });
 });
+
+exports.getConnectedRails = () => Object.values(connectedRails);
 
 exports.startServer = async () => {
   if (server.listening) return;

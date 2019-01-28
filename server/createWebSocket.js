@@ -4,6 +4,7 @@ const noop = () => {};
 
 const ping = (ws) => {
   if (!ws.isAlive) {
+    console.log('ws stopped', ws.id);
     ws.terminate();
     return;
   }
@@ -25,25 +26,31 @@ function upgradeHandler(ctx) {
   return null;
 }
 
-function onConnection(ws) {
-  ws.isAlive = true;
-  ws.on('pong', heartbeat);
-  ws.on('message', (...args) => {
-    this.onMessage(...args);
-  });
-}
-
 const webSockets = [];
 
 setInterval(() => {
   webSockets.forEach(ws => ws.clients.forEach(ping));
 }, 15000);
 
-module.exports = (options = {}) => {
+module.exports = ({ onConnection, ...options } = {}) => {
   const ws = new WebSocket.Server({ noServer: true, ...options });
   ws.upgradeHandler = upgradeHandler.bind(ws);
-  ws.onMessage = () => {};
-  ws.on('connection', onConnection.bind(ws));
+  ws.onMessage = noop;
+  ws.on('connection', (con) => {
+    const id = Date.now().toString(36);
+    con.isAlive = true;
+    con.connectionId = id;
+
+    console.log('ws connected', id);
+    if (onConnection) {
+      onConnection.call(ws, con);
+    }
+
+    con.on('pong', heartbeat);
+    con.on('message', (...args) => {
+      ws.onMessage(id, ...args);
+    });
+  });
 
   webSockets.push(ws);
   return ws;

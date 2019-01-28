@@ -4,6 +4,7 @@ class RailsLogViewer
 
   def initialize(app, api_prefix: nil)
     @app = app
+    @started = DateTime.now
     @api_prefix = api_prefix.presence || DEFAULT_PREFIX
     @api_prefix += '/' unless @api_prefix.end_with? '/'
     run_client
@@ -11,10 +12,7 @@ class RailsLogViewer
 
   def call(env)
     path = env['PATH_INFO']
-    if path.start_with? @api_prefix
-      dispath(path[@api_prefix.size .. -1])
-      return
-    end
+    return dispath_api(path[@api_prefix.size .. -1]) if path.start_with? @api_prefix
 
     begin
       @app.call(env)
@@ -36,15 +34,29 @@ class RailsLogViewer
 
   private
 
-  def dispath(action)
+  def dispath_api(action)
     case action
     when 'models'
-      [200, { "Content-Type" => "application/json" }, [get_all_models.to_json]]
+      json_response(get_all_models)
     else
       [404, {}, []]
     end
   rescue Exception => e
     binding.pry
+  end
+
+  JSON_HEADER = { "Content-Type" => "application/json" }.freeze
+  DEFLATE_HEADER = { "Content-Encoding" => 'deflate' }.freeze
+
+  def json_response(data)
+    json = data.to_json
+    if json.size < 2000
+      [200, { 'Content-Length' => json.size }.merge!(JSON_HEADER), json]
+    else
+      zipped = Zlib.deflate(json)
+      header = { 'Content-Length' => zipped.size }
+      [200, header.merge!(JSON_HEADER).merge!(DEFLATE_HEADER), [zipped]]
+    end
   end
 
   def get_all_models
@@ -97,7 +109,7 @@ class RailsLogViewer
     @events = nil
     @enabled = false
     @subscribed_events = []
-    @zero_buff = ' ' * BLOCK_SIZE
+    @zero_buff = ' ' * CHUNK_SIZE
     @app_path = Rails.root.to_s + '/'
     check_connection
   end
@@ -121,11 +133,11 @@ class RailsLogViewer
     process_action.action_controller
     inspect_exception.rails_log_viewer
   ]).freeze
-  BLOCK_SIZE = 8 * 1024
+  CHUNK_SIZE = 8 * 1024
 
   def send_data(s, data)
-    raw = "#{data}#{@zero_buff[(data.size - BLOCK_SIZE) .. -1]}"
-    binding.pry if raw.size > BLOCK_SIZE
+    raw = "#{data}#{@zero_buff[(data.size - CHUNK_SIZE) .. -1]}"
+    binding.pry if raw.size > CHUNK_SIZE
     s.send(raw, 0)
   end
 
@@ -135,13 +147,14 @@ class RailsLogViewer
     options = Rails::Server.new.options
     @connection_message = {
       pid: Process.pid,
-      path: Rails.root.to_s,
-      mode: Rails.env.to_s,
+      api_prefix: @api_prefix,
       host: options[:Host],
+      mode: Rails.env.to_s,
+      path: Rails.root.to_s,
       port: options[:Port],
       ruby: RUBY_VERSION,
+      started: @started,
       version: Rails.version,
-      api_prefix: @api_prefix,
     }.to_json.freeze
   end
 
@@ -179,20 +192,20 @@ class RailsLogViewer
     event = @events.delete(id)
     return unless event
 
-    send_blocks(event.merge!(data)) do |block|
-      send_data(@socket, block)
+    get_chunks(event.merge!(data)) do |chunk|
+      send_data(@socket, chunk)
     end
   rescue Exception => e
     check_connection
     send_log(id, data) if @events
   end
 
-  BLOCK_LIMIT = BLOCK_SIZE - 32
+  CHUNK_LIMIT = CHUNK_SIZE - 32
 
-  def send_blocks(data)
+  def get_chunks(data)
     json = data.to_json
     raw_size = json.size
-    if raw_size <= BLOCK_LIMIT
+    if raw_size <= CHUNK_LIMIT
       # 8
       yield "#{signature(1, raw_size)}#{json}"
       return
@@ -201,19 +214,19 @@ class RailsLogViewer
     zipped = Zlib.deflate json
     zip_size = zipped.size
     return if zip_size >= 0x0100_0000 # 16M
-    if zip_size <= BLOCK_LIMIT
+    if zip_size <= CHUNK_LIMIT
       # 12
       yield "#{signature(2, raw_size, zip_size)}#{zipped}"
       return
     end
 
-    block_count = ((0.0 + zip_size) / BLOCK_LIMIT).ceil
+    chunk_count = ((0.0 + zip_size) / CHUNK_LIMIT).ceil
     # 4 + 4 + 4 + 2
-    head = "#{signature(3, raw_size, zip_size)}#{[block_count].pack 'S'}"
-    block_count.times do |index|
-      block = zipped.slice(index * BLOCK_LIMIT, BLOCK_LIMIT)
+    head = "#{signature(3, raw_size, zip_size)}#{[chunk_count].pack 'S'}"
+    chunk_count.times do |index|
+      chunk = zipped.slice(index * CHUNK_LIMIT, CHUNK_LIMIT)
       # 14 + 2 + 2
-      yield "#{head}#{[index, block.size].pack 'S S'}#{block}"
+      yield "#{head}#{[index, chunk.size].pack 'S S'}#{chunk}"
     end
   end
 
