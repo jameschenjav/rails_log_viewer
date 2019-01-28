@@ -1,6 +1,6 @@
 # config.middleware.use RailsLogViewer if Rails.const_defined? 'Server'
 class RailsLogViewer
-  DEFAULT_PREFIX = '/_rlv/meta/'
+  DEFAULT_PREFIX = '/_rlv/meta/'.freeze
 
   def initialize(app, api_prefix: nil)
     @app = app
@@ -12,11 +12,11 @@ class RailsLogViewer
 
   def call(env)
     path = env['PATH_INFO']
-    return dispath_api(path[@api_prefix.size .. -1]) if path.start_with? @api_prefix
+    return dispatch_api(path[@api_prefix.size..-1]) if path.start_with? @api_prefix
 
     begin
       @app.call(env)
-    rescue Exception => e
+    rescue StandardError => e
       oe = e.try(:original_exception)
       ActiveSupport::Notifications.instrument(
         'inspect_exception.rails_log_viewer',
@@ -34,19 +34,19 @@ class RailsLogViewer
 
   private
 
-  def dispath_api(action)
+  def dispatch_api(action)
     case action
     when 'models'
       json_response(get_all_models)
     else
       [404, {}, []]
     end
-  rescue Exception => e
+  rescue StandardError => e
     binding.pry
   end
 
-  JSON_HEADER = { "Content-Type" => "application/json" }.freeze
-  DEFLATE_HEADER = { "Content-Encoding" => 'deflate' }.freeze
+  JSON_HEADER = { 'Content-Type' => 'application/json' }.freeze
+  DEFLATE_HEADER = { 'Content-Encoding' => 'deflate' }.freeze
 
   def json_response(data)
     json = data.to_json
@@ -61,8 +61,8 @@ class RailsLogViewer
 
   def get_all_models
     model_names = Dir.entries(Rails.root.join('app/models'))
-      .map { |fn| fn.end_with?('.rb') ? fn.sub('.rb', '').camelize : nil }
-      .compact
+                     .map { |fn| fn.end_with?('.rb') ? fn.sub('.rb', '').camelize : nil }
+                     .compact
     base_model = defined?(ApplicationRecord) ? ApplicationRecord : ActiveRecord::Base
     model_names.map do |name|
       begin
@@ -83,8 +83,8 @@ class RailsLogViewer
               sql: col.sql_type,
             )]
           end.to_h,
-          relations: model.reflections.map do |name, rel|
-            [name, {
+          relations: model.reflections.map do |rel_name, rel|
+            [rel_name, {
               ref_class: model.name,
               class_name: rel.class_name,
               collection: rel.collection?,
@@ -95,7 +95,7 @@ class RailsLogViewer
             }]
           end.to_h
         }]
-      rescue Exception => e
+      rescue StandardError
       end
     end.compact.to_h
   end
@@ -136,7 +136,7 @@ class RailsLogViewer
   CHUNK_SIZE = 8 * 1024
 
   def send_data(s, data)
-    raw = "#{data}#{@zero_buff[(data.size - CHUNK_SIZE) .. -1]}"
+    raw = "#{data}#{@zero_buff[(data.size - CHUNK_SIZE)..-1]}"
     binding.pry if raw.size > CHUNK_SIZE
     s.send(raw, 0)
   end
@@ -162,23 +162,23 @@ class RailsLogViewer
     ActiveSupport::Notifications.subscribe(event, &block)
   end
 
-  def unsubscribe(e)
-    ActiveSupport::Notifications.unsubscribe(e) if e
+  def unsubscribe(event_name)
+    ActiveSupport::Notifications.unsubscribe(event_name) if event_name
   end
 
   def check_connection
-    socket = UNIXSocket.new('/tmp/rlv.sock') rescue nil
+    socket = UNIXSocket.new('/tmp/rlv.sock')
     unsubscribe(@checker) if @checker
     @checker = nil
     send_data(socket, "#{[-1].pack 'I'}#{connection_message}")
     @socket = socket
     @events = {}
     subscribe_events
-  rescue Exception => e
+  rescue StandardError
     subscribe_checker unless @checker
   end
 
-  def check(event, started, finished, id, data)
+  def check(_event, _started, _finished, id, _data)
     check_connection
     @events[id] = { view: [], orm: [] } if @events
   end
@@ -195,7 +195,7 @@ class RailsLogViewer
     get_chunks(event.merge!(data)) do |chunk|
       send_data(@socket, chunk)
     end
-  rescue Exception => e
+  rescue StandardError
     check_connection
     send_log(id, data) if @events
   end
@@ -214,6 +214,7 @@ class RailsLogViewer
     zipped = Zlib.deflate json
     zip_size = zipped.size
     return if zip_size >= 0x0100_0000 # 16M
+
     if zip_size <= CHUNK_LIMIT
       # 12
       yield "#{signature(2, raw_size, zip_size)}#{zipped}"
@@ -239,16 +240,16 @@ class RailsLogViewer
     raw.find_all do |path|
       path.include?(@app_path) && path.exclude?(__FILE__)
     end.map do |path|
-      path[@app_path.size .. -1]
+      path[@app_path.size..-1]
     end
   end
 
-  def process_event(event, started, finished, id, data, *extra)
+  def process_event(event, started, finished, id, data)
     return unless @socket
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      @events[id] ||= { id: id, view: [], orm: [] }
+      @events[id] ||= { id: DateTime.now.to_f.to_s, view: [], orm: [] }
       return
     end
 
@@ -261,7 +262,7 @@ class RailsLogViewer
     if event == 'process_action.action_controller'
       if payload[:exception]
         e = @events[id]
-        e.merge!(payload) if e
+        e&.merge!(payload)
       else
         send_log(id, payload)
       end
@@ -277,14 +278,14 @@ class RailsLogViewer
     return unless e
 
     payload.merge!(stack: app_stack(caller))
-    key = if event =~ /\w+\.action_view/
-      :view
-    else
-      if event.start_with? 'sql.'
-        payload.merge!(binds: data[:binds].map { |b| [b[0].name, b[1]] })
-      end
-      :orm
-    end
+    key = if event.match?(/\w+\.action_view/)
+            :view
+          else
+            if event.start_with? 'sql.'
+              payload[:binds] = data[:binds].map { |b| [b[0].name, b[1]] }
+            end
+            :orm
+          end
     e[key] << payload
   end
 end
