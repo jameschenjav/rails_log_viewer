@@ -249,17 +249,20 @@ class RailsLogViewer
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      @events[id] ||= { id: DateTime.now.to_f.to_s, view: [], orm: [] }
+      rid = (started.to_f * 1000).to_i.to_s(36)
+      @events[id] ||= { id: rid, started: started, view: [], orm: [] }
       return
     end
 
     payload = data.merge(
       event: event,
-      started: started,
       finished: finished,
     )
 
     if event == 'process_action.action_controller'
+      controller = payload[:controller].constantize.new
+      source = controller.method(payload[:action]).source_location rescue nil
+      payload[:source] = source
       if payload[:exception]
         e = @events[id]
         e&.merge!(payload)
@@ -277,7 +280,7 @@ class RailsLogViewer
     e = @events[id]
     return unless e
 
-    payload.merge!(stack: app_stack(caller))
+    payload.merge!(stack: app_stack(caller), started: started)
     key = if event.match?(/\w+\.action_view/)
             :view
           else

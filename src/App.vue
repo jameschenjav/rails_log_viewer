@@ -56,6 +56,7 @@ body
   -moz-osx-font-smoothing grayscale
   color #2c3e50
   margin 10px auto
+  width calc(100% - 40px)
   max-width 1600px
   display block
   position relative
@@ -64,7 +65,7 @@ body
 pre, code
   font-family 'Fira Code', monospace
   font-variant-ligatures contextual
-a
+a[href]
   text-decoration none
   color #07a
   &:visited
