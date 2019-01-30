@@ -1,20 +1,16 @@
 <template lang="pug">
   .log-viewer
-    .request-list
+    .request-list(:class="hasRequest ? 'short' : ''")
       .request-item(v-for="r in requests" :key="r.id" :class="{ selected: r.id === selectedId }")
-        a(
-          :href="`/?url=${r.path}`"
-          @click.prevent="onSelectRequest(r.log)"
-          :title="r.log.path"
-        )
+        a(:href="`#${r.path}`" :title="r.log.path" @click.prevent="onSelectRequest(r)")
           .method(:class="`status-${r.status[0]}00`")
-            | [{{ r.log.method }}]
+            | {{ r.log.method }}
             .small {{ r.status }}
-          .path {{ r.shortenPath }}
+          .path {{ r.displayPath || r.path }}
           pre.timestamp
             | {{ r.timestamp }}
             | [{{ r.timespan }} ms]
-    request-panel(v-if="request" :log="request")
+    request-panel(v-if="request" :log="request" :folder="folder")
 </template>
 
 <script>
@@ -29,30 +25,36 @@ const extractPath = (path) => {
   return q > 0 ? path.slice(0, q) : path;
 };
 
+const MAX_PATH_SIZE = 32;
+
 const shortenPath = (path) => {
   const p = extractPath(path);
 
-  if (p.length <= 30) return p;
+  if (p.length < MAX_PATH_SIZE) return p;
   const parts = p.split('/');
   const last = parts[parts.length - 1];
   const s = `${parts[1]}/.../${last}`;
-  return s.length <= 30 ? s : `.../${last}`;
+  return s.length < MAX_PATH_SIZE ? s : `.../${last}`;
 };
 
 export default {
   name: 'LogViewer',
-  props: ['logs'],
+  props: ['logs', 'folder'],
   components: { RequestPanel },
 
   data: () => ({ request: null }),
 
   computed: {
+    hasRequest() {
+      return !!this.request;
+    },
+
     requests() {
       const { logs } = this;
       return logs.map(({ orm, view, ...log }) => ({
         id: log.id,
         path: extractPath(log.path),
-        shortenPath: shortenPath(log.path),
+        displayPath: this.hasRequest ? shortenPath(log.path) : null,
         log: {
           ...log,
           orm: orm.map(mapStackUrl),
@@ -71,8 +73,9 @@ export default {
   },
 
   methods: {
-    onSelectRequest(request) {
-      this.request = request;
+    onSelectRequest({ log, timespan }) {
+      const { request: req } = this;
+      this.request = (req && req.id) === log.id ? null : { timespan, ...log };
     },
   },
 };
@@ -85,14 +88,16 @@ export default {
   flex-direction row
   align-items stretch
   margin-bottom 10px
+  font-family 'Fira Code', monospace
   .request-list
     flex 1
-    width 30%
-    max-width 400px
     overflow-x hidden
     overflow-y auto
     background-color #CCC
     padding 5px 0
+    &.short
+      width 400px
+      max-width 400px
     .request-item
       padding: 3px
       width 100%
@@ -107,28 +112,19 @@ export default {
         height 35px
         position relative
         padding-left 5px
-        &:hover .timestamp
-          display none
     .method
       display inline-block
       line-height 1.2
       font-size 70%
       vertical-align middle
-      color #222
       width 32px
       .small
         font-size 90%
-    .status-200
-      color darkgreen
-    .status-400, .status-500
-      color red
     .path
       font-size 10pt
-      padding-left 5px
       display inline-block
-      font-family 'Fira Code', monospace
       vertical-align middle
-      width calc(100% - 40px)
+      width calc(100% - 30px)
     .timestamp
       font-size 70%
       font-weight bold

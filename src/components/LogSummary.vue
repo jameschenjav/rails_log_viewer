@@ -1,56 +1,45 @@
 <template lang="pug">
   .log-summary
-    pre
-      | [{{ method }}] {{ path }} [{{ status }}]
-      | format: {{ format }}
-      .handle(v-if="sourcePath")
-        a(:href="sourceUrl")
-          | {{ controller }}\#{{ action }}
-          br
-          | Path: {{ sourcePath }}
-      .handle(v-else)
-        | Handled: {{ controller }}\#{{ action }}
-      | Database: {{ dbTime }}
-      | Views: {{ viewTime }}
+    | Controller: {{ controller }}
+    | Action: {{ action }}, format: {{ format }} (response: {{ response }})
+    p
+      a.file(:href="sourceUrl")
+        | [{{ controllerClass }}\#{{ action }}]
+      | {{ source.sourcePath }}
     .params
       h3 Params
-      pre {{ params }}
+      .scrollable {{ params }}
+    .error(v-if="error")
+      h3 Error: {{ error.message }} ({{ error.type }})
+      | {{ error }}
 </template>
 
 <script>
-export const LOG_SUMMARY_PROPS = [
-  'action',
+import LogError from './LogError';
+
+const SPREAD_PROP = [
+  'controllerClass',
   'controller',
-  'db_runtime',
-  'finished',
+  'action',
   'format',
-  'method',
-  'path',
-  'source',
-  'started',
-  'status',
-  'view_runtime',
-  'params',
+  'response',
+  'folder',
 ];
 
 export default {
   name: 'LogSummary',
-  props: LOG_SUMMARY_PROPS,
+  props: ['source', 'params', 'error'],
+  components: { LogError },
+
   computed: {
-    dbTime() {
-      const { db_runtime: time } = this;
-      return time ? `${time.toFixed(1)} ms` : '-';
-    },
-    viewTime() {
-      const { view_runtime: time } = this;
-      return time ? `${time.toFixed(1)} ms` : '-';
-    },
-    sourcePath() {
-      const { source } = this;
-      return source ? `${source[0]}:${source[1]}` : null;
-    },
+    ...SPREAD_PROP.reduce((fns, name) => ({
+      ...fns,
+      [name]() {
+        return this.source[name];
+      },
+    }), {}),
     sourceUrl() {
-      const { sourcePath } = this;
+      const { source: { sourcePath } } = this;
       return sourcePath && `vscode://file/${sourcePath}`;
     },
   },
@@ -59,5 +48,7 @@ export default {
 
 <style lang="stylus">
 .log-summary
-  padding-left 10px
+  padding 8px 12px 5px 12px
+  a
+    display block
 </style>

@@ -11,7 +11,7 @@
         )
     main(v-else)
       rails-info(:server="currentServer" @click="clearServer")
-      log-viewer(:logs="logs")
+      log-viewer(:logs="logs" :folder="currentServer.path")
 </template>
 
 <script>
@@ -47,6 +47,8 @@ export default {
   src: url("../assets/FiraCode-Regular.woff2") format("woff2")
 *
   box-sizing border-box
+p, pre
+  margin 8px 0
 body
   margin 0
   padding 0
@@ -83,4 +85,14 @@ main
   display flex
   flex-direction column
   height 100%
+  font-size 11pt
+
+h3
+  margin 15px 0
+h4
+  margin 10px 0 6px 0
+.status-200
+  color darkgreen
+.status-400, .status-500
+  color red
 </style>

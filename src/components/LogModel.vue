@@ -15,7 +15,7 @@ export default {
 <style lang="stylus">
 .log-model
   padding-left 10px
-  max-height 50vh
+  max-height 100%
   overflow auto
   white-space pre-wrap
 </style>
