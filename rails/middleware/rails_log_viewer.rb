@@ -96,6 +96,7 @@ class RailsLogViewer
           end.to_h
         }]
       rescue StandardError
+        nil
       end
     end.compact.to_h
   end
@@ -231,15 +232,16 @@ class RailsLogViewer
     end
   end
 
-  def signature(type, *uint32_list)
+  def signature(type, *int32_list)
     @id = (@id + 1) & 0x007F_FFFF
-    [type | (@id << 8), *uint32_list].pack 'L*'
+    [type | (@id << 8), *int32_list].pack 'L*'
   end
 
   def app_stack(raw)
     raw.find_all do |path|
       path.include?(@app_path) && path.exclude?(__FILE__)
-    end.map do |path|
+    end
+    .map do |path|
       path[@app_path.size..-1]
     end
   end
@@ -261,7 +263,11 @@ class RailsLogViewer
 
     if event == 'process_action.action_controller'
       controller = payload[:controller].constantize.new
-      source = controller.method(payload[:action]).source_location rescue nil
+      source = begin
+                 controller.method(payload[:action]).source_location
+               rescue StandardError
+                 nil
+               end
       payload[:source] = source
       if payload[:exception]
         e = @events[id]
@@ -280,7 +286,8 @@ class RailsLogViewer
     e = @events[id]
     return unless e
 
-    payload.merge!(stack: app_stack(caller), started: started)
+    payload[:stack] = app_stack(caller)
+    payload[:started] = started
     key = if event.match?(/\w+\.action_view/)
             :view
           else

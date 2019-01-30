@@ -50,14 +50,15 @@ export default {
 body
   margin 0
   padding 0
+  overflow-x auto
+  overflow-y hidden
 #app
   font-family 'Avenir', Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased
   -moz-osx-font-smoothing grayscale
   color #2c3e50
   margin 10px auto
-  width calc(100% - 40px)
-  max-width 1600px
+  width 1360px
   display block
   position relative
   height calc(100vh - 20px)

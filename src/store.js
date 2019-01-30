@@ -19,7 +19,7 @@ export default new Vuex.Store({
       Object.keys(payload).forEach(key => Vue.set(state, key, payload[key]));
     },
     addServer: ({ servers }, { server }) => Vue.set(servers, server.pid, server),
-    deleteServer: ({ servers }, { rid }) => delete servers[rid],
+    deleteServer: ({ servers }, { rid }) => Vue.delete(servers, rid),
     selectServer: (state, { rid }) => {
       if (rid === null) {
         state.rid = null;

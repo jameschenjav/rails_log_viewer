@@ -45,4 +45,5 @@ export default {
     max-width 100%
     pre
       overflow auto
+      white-space pre-wrap
 </style>
