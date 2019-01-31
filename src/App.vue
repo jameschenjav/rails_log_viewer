@@ -88,9 +88,9 @@ main
   font-size 11pt
 
 h3
-  margin 15px 0
+  margin 12px 0 6px 0
 h4
-  margin 10px 0 6px 0
+  margin 10px 0 5px 0
 .status-200
   color darkgreen
 .status-400, .status-500

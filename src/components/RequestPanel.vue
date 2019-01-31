@@ -137,7 +137,8 @@ export default {
   .tab-body
     border 1px solid #EEE
     border-top none
-    flex 1
+    display block
+    height calc(100vh - 170px)
     overflow auto
     position relative
 </style>

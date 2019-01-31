@@ -1,12 +1,17 @@
 <template lang="pug">
   .log-model
-    .sql(v-for="(sql, index) in orm.slice(0, 100)" :key="index") {{ sql }}
+    .sql(v-for="(sql, index) in orm.slice(0, 100)" :key="index")
+      vue-json-pretty(:data="sql" :deep="2" show-length)
 </template>
 
 <script>
+import VueJsonPretty from 'vue-json-pretty';
+
 export default {
   name: 'LogModel',
   props: ['orm'],
+  components: { VueJsonPretty },
+
   computed: {
   },
 };

@@ -23,8 +23,7 @@ class RailsLogViewer
         exception: {
           type: e.class.to_s,
           message: e.message,
-          backtrace: e.backtrace,
-          stack: app_stack(e.backtrace),
+          backtrace: e.backtrace.reject { |path| path.start_with? __FILE__ },
           original: oe&.class&.to_s,
         },
       )

@@ -18,7 +18,6 @@ import format from 'date-fns/format';
 import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
 
 import RequestPanel from './RequestPanel';
-import { mapStackUrl } from '../utils';
 
 const extractPath = (path) => {
   const q = path.indexOf('?');
@@ -51,15 +50,11 @@ export default {
 
     requests() {
       const { logs } = this;
-      return logs.map(({ orm, view, ...log }) => ({
+      return logs.map(log => ({
         id: log.id,
+        log,
         path: extractPath(log.path),
         displayPath: this.hasRequest ? shortenPath(log.path) : null,
-        log: {
-          ...log,
-          orm: orm.map(mapStackUrl),
-          view: view.map(mapStackUrl),
-        },
         status: (log.status || 500).toString(),
         timestamp: format(log.started, 'MM-DD HH:mm:ss'),
         timespan: differenceInMilliseconds(log.finished, log.started),
