@@ -12,7 +12,7 @@
     .tab-body
       log-summary(v-bind="summaryProps" v-if="tab === 'summary'")
       log-view(:views="views" :folder="folder" v-if="tab === 'views'")
-      log-model(:orm="log.orm" v-if="tab === 'models'")
+      log-model(:models="orm.models" :raw="orm.raw" v-if="tab === 'models'")
 </template>
 
 <script>
@@ -21,6 +21,8 @@ import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
 import LogSummary from './LogSummary';
 import LogModel from './LogModel';
 import LogView from './LogView';
+
+import { groupViews, groupModels } from '../utils';
 
 const timeStr = ms => (ms ? `${ms.toFixed(1)}ms` : '-');
 
@@ -91,9 +93,8 @@ export default {
     views() {
       const { log, folder } = this;
       const chopLength = folder.length + 1;
-      if (!log) return [];
 
-      const views = log.view.map(({
+      return log ? groupViews(log.view.map(({
         event, started, finished, stack, identifier,
       }) => {
         const path = identifier.startsWith(folder) ? identifier.slice(chopLength) : identifier;
@@ -101,42 +102,41 @@ export default {
           path,
           stack,
           time: differenceInMilliseconds(finished, started),
-          event: event.split('.')[0],
+          event: event.split('.')[0].replace('render_', ''),
         };
-      });
+      })) : [];
+    },
 
-      views.sort((
-        {
-          path: p1, stack: s1, d1 = s1.length, event: e1,
-        },
-        {
-          path: p2, stack: s2, d2 = s2.length, event: e2,
-        },
-      ) => {
-        const d = d2 - d1;
-        if (d !== 0) return d;
+    orm() {
+      const { log } = this;
+      if (!log) return [];
 
-        const s = p1.localeCompare(p2);
-        return s === 0 ? e1.localeCompare(e2) : s;
-      });
-
-      const groups = [];
-      let last = {};
-      views.forEach((v) => {
-        const { path, event, stack } = v;
-        const { path: lp, event: le, stack: ls } = last;
-        if (path === lp && event === le && stack[0] === ls[0]) {
-          last.time += v.time;
-          last.count += 1;
+      const models = {};
+      const sql = [];
+      log.orm.forEach(({
+        class_name: model = null,
+        event: evt,
+        started,
+        finished,
+        statement_name: statement,
+        connection_id: _cid,
+        ...rec
+      }) => {
+        const time = differenceInMilliseconds(finished, started);
+        if (!model) {
+          sql.push({ time, statement, ...rec });
           return;
         }
 
-        last = v;
-        last.count = 1;
-        groups.push(last);
+        let m = models[model];
+        if (!m) {
+          m = { event: evt.split('.')[0], records: [] };
+          models[model] = m;
+        }
+        m.records.push({ time, ...rec });
       });
 
-      return groups;
+      return groupModels({ models, sql });
     },
   },
 

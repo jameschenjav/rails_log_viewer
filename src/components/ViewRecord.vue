@@ -1,6 +1,6 @@
 <template lang="pug">
   .view-record
-    | [{{ index }}] {{ event }} ({{ count }} times in {{ time }}ms)
+    | [{{ index }}] {{ event }} ({{ count > 1 ? `${count} times in ` : '' }}{{ time }}ms)
     .path
       a.handler(href="#" @click.prevent="showStack = !showStack")
         | [{{ showStack ? '-' : '+' }}] ({{ callStack.length }})
