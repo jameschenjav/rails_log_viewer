@@ -1,14 +1,15 @@
 <template lang="pug">
   .log-view
-    .view(v-for="(view, index) in views.slice(0, 100)" :key="index") {{ view }}
+    view-record(v-for="(v, i) in views" :key="i+1" v-bind="v" :folder="folder" :index="i")
 </template>
 
 <script>
+import ViewRecord from './ViewRecord';
+
 export default {
   name: 'LogView',
-  props: ['views'],
-  computed: {
-  },
+  props: ['views', 'folder'],
+  components: { ViewRecord },
 };
 </script>
 

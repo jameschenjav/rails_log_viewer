@@ -1,6 +1,6 @@
 <template lang="pug">
   .file-link
-    a.file(:href="url") [{{ index }}] {{ display }}
+    a.file(:href="url") {{ text }}
     .context(v-if="context") ‘{{ context }}’
 </template>
 
@@ -9,8 +9,13 @@ export default {
   name: 'FileLink',
   props: ['display', 'path', 'context', 'index'],
   computed: {
+    text() {
+      const { index, display, path } = this;
+      return `${Number.isInteger(index) ? `[${index}] ` : ''}${display || path}`;
+    },
     url() {
-      return `vscode://file/${this.path}`;
+      const { path, display } = this;
+      return `vscode://file/${path || display}`;
     },
   },
 };
@@ -18,7 +23,6 @@ export default {
 
 <style lang="stylus">
 .file-link
-  margin 5px
   *
     display inline-block
   .context

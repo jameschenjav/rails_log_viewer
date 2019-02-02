@@ -16,40 +16,14 @@
       a(href="#" @click.prevent="fullStack = !fullStack")
         | {{ fullStack ? 'App Folder Only' : 'Full Stack' }}
       .call-stack
-        file-link(v-for="(r, index) in errorStack" :key="index" v-bind="{ ...r, index }")
+        file-link(v-for="(r, i) in errorStack" :key="i + 1" v-bind="{ ...r, index: i }")
 </template>
 
 <script>
 import VueJsonPretty from 'vue-json-pretty';
 
 import FileLink from './FileLink';
-
-const RE_ERROR = /^(.+?):in `(.+)'$/;
-
-const generateStack = ({ backtrace, folder }) => {
-  if (folder) {
-    const chop = folder.length + 1;
-    return backtrace.filter(msg => msg.startsWith(folder)).map((msg) => {
-      const m = msg.match(RE_ERROR);
-      const path = m[1];
-      return {
-        path,
-        display: path.slice(chop),
-        context: m[2],
-      };
-    });
-  }
-
-  return backtrace.map((msg) => {
-    const m = msg.match(RE_ERROR);
-    const path = m[1];
-    return {
-      path,
-      display: path,
-      context: m[2],
-    };
-  });
-};
+import { generateStack } from '../utils';
 
 const SPREAD_PROP = [
   'controllerClass',
@@ -85,10 +59,10 @@ export default {
     },
 
     errorStack() {
-      const { error: { backtrace } = {} } = this;
-      if (!backtrace) return null;
+      const { error: { backtrace: stack } = {} } = this;
+      if (!stack) return null;
 
-      return generateStack({ backtrace, folder: this.fullStack ? null : this.folder });
+      return generateStack({ stack, folder: this.fullStack ? null : this.folder });
     },
 
     errorSummary() {
@@ -104,6 +78,8 @@ export default {
   padding 8px 12px 5px 12px
   .error h3
     color red
+  .file-link
+    margin 5px
 .vjs__tree .vjs__tree__content
   padding-left 30px !important
 </style>

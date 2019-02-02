@@ -11,18 +11,18 @@
         )
     main(v-else)
       rails-info(:server="currentServer" @click="clearServer")
-      log-viewer(:logs="logs" :folder="currentServer.path")
+      main-viewer(:logs="logs" :folder="currentServer.path")
 </template>
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
 
 import RailsInfo from './components/RailsInfo';
-import LogViewer from './components/LogViewer';
+import MainViewer from './components/MainViewer';
 
 export default {
   name: 'app',
-  components: { RailsInfo, LogViewer },
+  components: { RailsInfo, MainViewer },
   computed: {
     ...mapState(['logs']),
     ...mapGetters(['serverList', 'currentServer']),

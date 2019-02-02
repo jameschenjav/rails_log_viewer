@@ -37,7 +37,7 @@ const shortenPath = (path) => {
 };
 
 export default {
-  name: 'LogViewer',
+  name: 'MainViewer',
   props: ['logs', 'folder'],
   components: { RequestPanel },
 
