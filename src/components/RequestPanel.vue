@@ -12,7 +12,7 @@
     .tab-body
       log-summary(v-bind="summaryProps" v-if="tab === 'summary'")
       log-view(:views="views" :folder="folder" v-if="tab === 'views'")
-      log-model(:models="orm.models" :raw="orm.raw" v-if="tab === 'models'")
+      log-model(:models="orm.models" :raw="orm.raw" :folder="folder" v-if="tab === 'models'")
 </template>
 
 <script>
