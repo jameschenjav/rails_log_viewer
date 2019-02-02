@@ -1,6 +1,8 @@
 <template lang="pug">
   .sql-record
-    .sql [{{ index }}] {{ statement ? `(${statement})` : '' }} {{ sql }}
+    .sql
+      | {{ Number.isInteger(index) ? `[${index}] ` : '' }}{{ statement ? `(${statement})` : '' }}
+      |  {{ sql }}
     .binds(v-if="binds.length")
       a(href="#" @click.prevent="showBinds = !showBinds")
         | [{{ showBinds ? '-' : '+' }}] {{ binds.length }} Binds:
@@ -12,10 +14,11 @@
       .close(v-else) ...
       | ]
     .result {{ name }} ({{ count }} calls in {{ time }}ms)
-    a.handler(href="#" @click.prevent="showStack = !showStack")
-      | [{{ showStack ? '-' : '+' }}] Backtrace ({{ callStack.length }} calls)
-    .stack(v-if="showStack")
-      file-link(v-for="(r, i) in callStack" :key="`c.${i}`" v-bind="{ ...r, index: i }")
+    .backtrace(v-if="stack && stack.length")
+      a.handler(href="#" @click.prevent="showStack = !showStack")
+        | [{{ showStack ? '-' : '+' }}] Backtrace ({{ callStack.length }} calls)
+      .stack(v-if="showStack")
+        file-link(v-for="(r, i) in callStack" :key="`c.${i}`" v-bind="{ ...r, index: i }")
 </template>
 
 <script>
@@ -32,7 +35,7 @@ export default {
   computed: {
     callStack() {
       const { stack, folder } = this;
-      return generateStack({ stack, folder, partial: true });
+      return stack ? generateStack({ stack, folder, partial: true }) : [];
     },
   },
 };
@@ -46,13 +49,14 @@ export default {
   .result
     display block
     padding-left 30px
+    color maroon
   .binds
     padding 10px 30px
     border-radius 8px
     .close
       display inline
       color #888
-    .bind
+    .open
       padding-left 30px
       *
         display inline-block
