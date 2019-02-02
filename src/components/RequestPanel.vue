@@ -5,14 +5,14 @@
     .tab.menu
       a.tab(@click="switchTab('summary')" :class="{active: tab === 'summary'}")
         | Summary
-      a.tab(@click="switchTab('models')" :class="{active: tab === 'models'}")
-        | Models ({{ log.orm.length }} records)
       a.tab(@click="switchTab('views')" :class="{active: tab === 'views'}")
-        | Rendered ({{ log.view.length }} views)
+        | Rendered ({{ log.view.length }} views: {{ viewTime }})
+      a.tab(@click="switchTab('models')" :class="{active: tab === 'models'}")
+        | Models ({{ log.orm.length }} records: {{ dbTime }})
     .tab-body
       log-summary(v-bind="summaryProps" v-if="tab === 'summary'")
-      log-model(:orm="log.orm" v-if="tab === 'models'")
       log-view(:views="views" :folder="folder" v-if="tab === 'views'")
+      log-model(:orm="log.orm" v-if="tab === 'models'")
 </template>
 
 <script>
@@ -60,6 +60,16 @@ export default {
       };
     },
 
+    dbTime() {
+      const { log: { db_runtime: time } } = this;
+      return timeStr(time);
+    },
+
+    viewTime() {
+      const { log: { view_runtime: time } } = this;
+      return timeStr(time);
+    },
+
     basicInfo() {
       const {
         log: {
@@ -67,14 +77,10 @@ export default {
           status = 500,
           format,
           timespan,
-          db_runtime: dbTime,
-          view_runtime: viewTime,
         },
       } = this;
 
-      const time = `${timespan}ms (Views: ${timeStr(dbTime)} | Db: ${timeStr(viewTime)})`;
-      // [{{ log.format }}] {{ log.timespan }}ms (Views: {{ viewTime }} | Db: {{ dbTime }})
-      return `[${method}] ${status} - ${format}: ${time}`;
+      return `[${method}] ${status} - ${format} (${timespan}ms)`;
     },
 
     status() {
@@ -156,8 +162,8 @@ export default {
   display flex
   flex-direction column
   .basic
-    font-size 85%
-    padding 5px
+    font-size 92%
+    padding 6px
   details
     max-width 100%
   .scrollable
