@@ -83,6 +83,7 @@ export default {
   flex-direction row
   align-items stretch
   margin-bottom 10px
+  max-height calc(100% - 55px)
   font-family 'Fira Code', monospace
   .request-list
     flex 1
