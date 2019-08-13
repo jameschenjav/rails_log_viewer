@@ -5,10 +5,6 @@
 
   let active = false;
 
-  $: {
-    console.log(railsServers, currentRid, selectServer);
-  }
-
   $: serverList = Object.keys(railsServers).sort();
 
   const formatServer = (rid) => {
