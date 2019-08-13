@@ -144,6 +144,7 @@ export const groupModels = ({ models, sql }) => {
       groups.push(last);
     });
 
+    // eslint-disable-next-line no-param-reassign
     models[model] = {
       model,
       event,

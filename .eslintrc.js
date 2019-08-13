@@ -1,32 +1,28 @@
 module.exports = {
-  root: true,
-  env: {
-    node: true,
-  },
-  extends: [
-    'plugin:vue/essential',
-    '@vue/airbnb',
-  ],
-  rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-    'no-param-reassign': 'warn',
-    'no-bitwise': 0,
-    'no-nested-ternary': 0,
-    'import/extensions': [
-      'error',
-      'always',
-      {
-        'js': 'never',
-        'vue': 'never',
-      },
-    ],
-  },
   parserOptions: {
+    ecmaVersion: 2019,
+    sourceType: 'module',
     parser: 'babel-eslint',
   },
-  globals: {
-    // window: true,
-    // document: true,
+  parser: 'babel-eslint',
+  extends: ['airbnb'],
+  plugins: ['svelte3'],
+  env: {
+    es6: true,
+    browser: true,
+  },
+  overrides: [
+    {
+      files: ['**/*.svelte'],
+      processor: 'svelte3/svelte3',
+      rules: {
+        'import/first': 0,
+        'import/prefer-default-export': 0,
+        'import/no-mutable-exports': 0,
+      },
+    },
+  ],
+  rules: {
+    'no-bitwise': 0,
   },
 };
