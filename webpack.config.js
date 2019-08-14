@@ -66,6 +66,7 @@ module.exports = {
     ]
     : [],
   devServer: {
+    host: '0.0.0.0',
     contentBase: 'public',
     headers: { 'Access-Control-Allow-Origin': '*' },
     hot: false,

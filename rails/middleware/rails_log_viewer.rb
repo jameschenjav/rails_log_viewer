@@ -32,6 +32,13 @@ class RailsLogViewer
 
   private
 
+  def self.started?
+    return true if @started
+
+    @started = true
+    false
+  end
+
   def inspect_exception(error)
     oe = error.try(:original_exception)
     ActiveSupport::Notifications.instrument(
@@ -122,14 +129,14 @@ class RailsLogViewer
   end
 
   def run_client
-    return if Rails.env.production?
+    return if Rails.env.production? || self.class.started?
 
     @id = 0
     @socket = nil
     @events = {}
     @zero_buff = ' ' * CHUNK_SIZE
     @app_path = Rails.root.to_s + '/'
-    WATCH_EVENTS.map do |event|
+    WATCH_EVENTS.each do |event|
       subscribe(event, method(:process_event))
     end
     check_connection

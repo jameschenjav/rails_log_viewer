@@ -9,7 +9,7 @@ import consola from 'consola';
 
 import { wsServer, startIpc } from './socket';
 
-const host = env.HOST || '127.0.0.1';
+const host = env.HOST || '0.0.0.0';
 const port = +(env.PORT || 8030);
 
 const start = (): void => {

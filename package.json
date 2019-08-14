@@ -13,16 +13,17 @@
   "main": "server/index.js",
   "dependencies": {
     "@koa/cors": "^3.0.0",
-    "@mdi/font": "^3.9.97",
+    "@mdi/font": "^4.0.96",
     "bulma": "^0.7.5",
     "consola": "^2.10.1",
+    "date-fns": "^1.30.1",
     "koa": "^2.7.0",
     "koa-logger": "^3.2.0",
     "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "lodash": "^4.17.15",
-    "svelte": "^3.7.1",
-    "ws": "^7.0.0"
+    "svelte": "^3.8.0",
+    "ws": "^7.1.2"
   },
   "devDependencies": {
     "@types/consola": "^1.0.0",
@@ -32,13 +33,13 @@
     "@types/koa-static": "^4.0.1",
     "@types/node": "^12.0.8",
     "@types/ws": "^6.0.1",
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^2.0.0",
     "babel-eslint": "^10.0.2",
     "cross-env": "^5.2.0",
     "css-loader": "^3.2.0",
     "eslint": "~6.1.0",
-    "eslint-config-airbnb": "^17.1.1",
+    "eslint-config-airbnb": "^18.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.14.3",
@@ -56,7 +57,7 @@
     "svelte-preprocess": "^2.15.1",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.2",
-    "webpack": "^4.39.1",
+    "webpack": "^4.39.2",
     "webpack-cli": "^3.3.6",
     "webpack-dev-server": "^3.8.0"
   }
