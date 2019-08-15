@@ -4,11 +4,15 @@
   import LogList from './LogList.svelte';
   import LogViewer from './LogViewer.svelte';
 
+  wsApi.init();
+
   let railsServers = {};
 
   let currentRid = null;
 
   let currentLog = null;
+
+  $: isFullList = !currentLog;
 
   const selectServer = (rid) => {
     if (currentRid === rid) return;
@@ -87,7 +91,15 @@
     closed({ rid }) {
       const { [rid]: _, ...srvs } = railsServers;
       railsServers = srvs;
+      if (currentRid && !(currentRid in railsServers)) {
+        currentRid = null;
+      }
     },
+  };
+
+  wsApi.onDisconnect = () => {
+    railsServers = {};
+    currentRid = null;
   };
 </script>
 
@@ -100,7 +112,7 @@
 <main>
   <div class="container is-fluid">
     <div class="columns is-variable is-1">
-      <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile">
+      <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile {isFullList ? '' : 'minimal'}">
         <LogList bind:selectedLog={currentLog} {...{
           currentRid,
           railsServers,
@@ -139,5 +151,9 @@ main {
 
 .column.list-column {
   display: flex;
+}
+
+.column.list-column.minimal {
+  width: 250px;
 }
 </style>

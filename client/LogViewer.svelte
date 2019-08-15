@@ -3,7 +3,7 @@
 </script>
 
 <div class="viewer">
-  <pre>{JSON.stringify(log, null, 2)}</pre>
+  <pre class="{log ? '' : 'is-hidden'}">{JSON.stringify(log, null, 2)}</pre>
 </div>
 
 <style>

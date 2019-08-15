@@ -5,14 +5,16 @@
 
   $: selectId = `${title}-id`.toLowerCase();
 
-  $: pairs = items.map(x => [x].flat()).map(([v, t = v]) => [v, t]);
+  $: pairs = items.map((x) => [x].flat()).map(([v, t = v]) => [v, t]);
 </script>
 
 <div class="card-footer-item is-paddingless">
   <div class="field has-addons">
-    <div class="control">
-      <label class="button is-static is-small" for={selectId}>{title}:</label>
-    </div>
+    {#if title}
+      <div class="control">
+        <label class="button is-static is-small" for={selectId}>{title}:</label>
+      </div>
+    {/if}
     <div class="control is-expanded">
       <div class="select is-fullwidth is-small">
         <select id={selectId} bind:value={value}>

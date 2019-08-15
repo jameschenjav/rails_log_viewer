@@ -3,9 +3,13 @@
 
   export let log;
   export let isPinned;
-  export let isSelected;
+  export let selectedLog;
   export let togglePinned;
   export let selectLog = () => {};
+
+  $: isSelected = selectedLog === log;
+
+  $: isSmaller = !!selectedLog;
 
   const METHOD_COLOR_CLASSES = {
     get: 'is-info',
@@ -26,6 +30,11 @@
   };
 
   const getStatusClass = ({ status }) => STATUS_COLOR_CLASSES[`${status}`[0]] || 'is-primary';
+
+  const durationOf = ({ finished, started }) => {
+    const d = Date.parse(finished) - Date.parse(started);
+    return d > 5000 ? `${(d / 1000).toFixed(1)}s` : `${d}ms`;
+  };
 </script>
 
 <div class="panel-block is-size-7 {isSelected ? 'is-active has-background-link has-text-white' : 'non-select'}">
@@ -37,23 +46,27 @@
       >
         <i class="mdi {isPinned ? 'mdi-pin-off has-text-white' : 'mdi-pin has-text-black'}"></i>
       </a>
-      {format(log.started, 'HH:mm:ss.SSS')}
+      {format(log.started, isSmaller ? 'mm:ss' : 'HH:mm:ss.SSS')}
     </span>
-    <div class="tags has-addons is-marginless">
-      <span class="tag is-marginless {getMethodClass(log)}">{log.method}</span>
-      <span class="tag is-marginless is-dark is-uppercase">{log.format}</span>
-    </div>
-    <span class="tag is-marginless {getStatusClass(log)}">{log.status}</span>
-    <span class="duration has-text-right">
-      {(Date.parse(log.finished) - Date.parse(log.started))}ms
-    </span>
+    {#if isSmaller}
+      <span class="tag is-marginless is-lowercase {getStatusClass(log)}">
+        {log.method} {log.format} {log.status}
+      </span>
+    {:else}
+      <div class="tags has-addons is-marginless">
+        <span class="tag is-marginless {getMethodClass(log)}">{log.method}</span>
+        <span class="tag is-marginless is-dark is-uppercase">{log.format}</span>
+      </div>
+      <span class="tag is-marginless {getStatusClass(log)}">{log.status}</span>
+    {/if}
+    <span class="duration has-text-right {isSmaller ? 'smaller' : ''}">{durationOf(log)}</span>
   </div>
   <a href
     class="row no-wrap link {isSelected ? 'has-text-link' : ''}"
     title={log.path}
     on:click|preventDefault={() => selectLog(log)}
   >
-    {log.path}
+    {isSmaller ? log.path.slice(log.path.lastIndexOf('/') + 1) : log.path}
   </a>
 </div>
 
@@ -70,8 +83,8 @@
     justify-content: space-between;
   }
 
-  .duration {
-    width: 100px;
+  .duration:not(.smaller) {
+    width: 50px;
   }
 
   .icon.pin {

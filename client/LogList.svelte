@@ -24,13 +24,15 @@
     });
   }
 
-  const uniq = items => [...(new Set(items))].sort();
+  $: hasTitle = !selectedLog;
+
+  const uniq = (items) => [...(new Set(items))].sort();
 
   $: allMethods = uniq(allLogs.map(({ method }) => method.toUpperCase()));
 
   $: allFormats = uniq(allLogs.map(({ format }) => format));
 
-  $: allStatuses = uniq(allLogs.map(({ status }) => `${status}`[0])).map(v => [v, `${v}xx`]);
+  $: allStatuses = uniq(allLogs.map(({ status }) => `${status}`[0])).map((v) => [v, `${v}xx`]);
 
   let methodFilter = '';
 
@@ -97,9 +99,9 @@
     </p>
   </div>
   <footer class="card-footer">
-    <ListFilter title="Method" items={allMethods} bind:value={methodFilter} />
-    <ListFilter title="Format" items={allFormats} bind:value={formatFilter} />
-    <ListFilter title="Status" items={allStatuses} bind:value={statusFilter} />
+    <ListFilter title={hasTitle && 'Method'} items={allMethods} bind:value={methodFilter} />
+    <ListFilter title={hasTitle && 'Format'} items={allFormats} bind:value={formatFilter} />
+    <ListFilter title={hasTitle && 'Status'} items={allStatuses} bind:value={statusFilter} />
   </footer>
 
   {#if (!filteredLogs.length)}
@@ -111,8 +113,8 @@
       <ListItem
         log={log}
         togglePinned={togglePinned}
-        isSelected={log === selectedLog}
-        isPinned={!!currentPinned[log.ts]}
+        selectedLog={selectedLog}
+        isPinned={log.ts in currentPinned}
         selectLog={() => { selectLog(log); }}
       />
     {/each}
