@@ -2,14 +2,11 @@
   import { format } from 'date-fns';
 
   export let log;
+  export let small;
   export let isPinned;
-  export let selectedLog;
+  export let isSelected;
   export let togglePinned;
   export let selectLog = () => {};
-
-  $: isSelected = selectedLog === log;
-
-  $: isSmaller = !!selectedLog;
 
   const METHOD_COLOR_CLASSES = {
     get: 'is-info',
@@ -35,6 +32,11 @@
     const d = Date.parse(finished) - Date.parse(started);
     return d > 5000 ? `${(d / 1000).toFixed(1)}s` : `${d}ms`;
   };
+
+  const shortPath = ({ path }) => {
+    const r = path.slice(path.lastIndexOf('/') + 1);
+    return r || path;
+  };
 </script>
 
 <div class="panel-block is-size-7 {isSelected ? 'is-active has-background-link has-text-white' : 'non-select'}">
@@ -46,9 +48,9 @@
       >
         <i class="mdi {isPinned ? 'mdi-pin-off has-text-white' : 'mdi-pin has-text-black'}"></i>
       </a>
-      {format(log.started, isSmaller ? 'mm:ss' : 'HH:mm:ss.SSS')}
+      {format(log.started, small ? 'mm:ss' : 'HH:mm:ss.SSS')}
     </span>
-    {#if isSmaller}
+    {#if small}
       <span class="tag is-marginless is-lowercase {getStatusClass(log)}">
         {log.method} {log.format} {log.status}
       </span>
@@ -59,14 +61,14 @@
       </div>
       <span class="tag is-marginless {getStatusClass(log)}">{log.status}</span>
     {/if}
-    <span class="duration has-text-right {isSmaller ? 'smaller' : ''}">{durationOf(log)}</span>
+    <span class="duration has-text-right {small ? 'smaller' : ''}">{durationOf(log)}</span>
   </div>
   <a href
     class="row no-wrap link {isSelected ? 'has-text-link' : ''}"
     title={log.path}
     on:click|preventDefault={() => selectLog(log)}
   >
-    {isSmaller ? log.path.slice(log.path.lastIndexOf('/') + 1) : log.path}
+    {small ? shortPath(log) : log.path}
   </a>
 </div>
 

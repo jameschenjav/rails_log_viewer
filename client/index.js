@@ -1,7 +1,8 @@
 import App from './App.svelte';
 
-import './vendor.sass';
-import './app.sass';
+import './styles/vendor.sass';
+import './styles/app.sass';
+import './assets/FiraCode-Regular.woff2';
 
 const app = new App({ target: document.body });
 

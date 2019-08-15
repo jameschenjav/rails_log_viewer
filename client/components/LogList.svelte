@@ -1,10 +1,11 @@
 <script>
-  import ListItem from './ListItem.svelte';
-  import ListFilter from './ListFilter.svelte';
+  import ListItem from './list/ListItem.svelte';
+  import ListFilter from './list/ListFilter.svelte';
 
   export let currentRid = null;
   export let railsServers = {};
   export let logs = [];
+  export let small = false;
   export let selectedLog = null;
   export let addLogBack = () => {};
 
@@ -23,8 +24,6 @@
       newPinned[rid] = pinned[rid] || {};
     });
   }
-
-  $: hasTitle = !selectedLog;
 
   const uniq = (items) => [...(new Set(items))].sort();
 
@@ -99,23 +98,24 @@
     </p>
   </div>
   <footer class="card-footer">
-    <ListFilter title={hasTitle && 'Method'} items={allMethods} bind:value={methodFilter} />
-    <ListFilter title={hasTitle && 'Format'} items={allFormats} bind:value={formatFilter} />
-    <ListFilter title={hasTitle && 'Status'} items={allStatuses} bind:value={statusFilter} />
+    <ListFilter title={!small && 'Method'} items={allMethods} bind:value={methodFilter} />
+    <ListFilter title={!small && 'Format'} items={allFormats} bind:value={formatFilter} />
+    <ListFilter title={!small && 'Status'} items={allStatuses} bind:value={statusFilter} />
   </footer>
 
   {#if (!filteredLogs.length)}
-  <hr class="is-marginless" />
+    <hr class="is-marginless" />
   {/if}
 
   <nav class="panel is-marginless">
     {#each filteredLogs as log (log.ts)}
       <ListItem
-        log={log}
-        togglePinned={togglePinned}
-        selectedLog={selectedLog}
+        {log}
+        {togglePinned}
+        {small}
+        isSelected={selectedLog === log}
         isPinned={log.ts in currentPinned}
-        selectLog={() => { selectLog(log); }}
+        {selectLog}
       />
     {/each}
   </nav>

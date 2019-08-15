@@ -20,7 +20,7 @@ export const generateStack = ({ stack, folder, partial = false }) => {
     }
 
     const chop = folder.length + 1;
-    return stack.filter(msg => msg.startsWith(folder)).map((msg) => {
+    return stack.filter((msg) => msg.startsWith(folder)).map((msg) => {
       const m = msg.match(RE_CONTEXT);
       const path = m[1];
       return {
@@ -173,8 +173,8 @@ export const groupModels = ({ models, sql }) => {
         group.sql.push({ ...sqlRec, count: 1 });
       }
       return null;
-    }).filter(x => x));
-  }).flat().filter(x => x);
+    }).filter((x) => x));
+  }).flat().filter((x) => x);
 
   const records = Object.values(models).map(({ model, groups }) => ({
     model,

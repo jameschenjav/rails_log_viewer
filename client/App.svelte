@@ -1,10 +1,10 @@
 <script>
-  import wsApi from './wsApi';
-  import TopNav from './TopNav.svelte';
-  import LogList from './LogList.svelte';
-  import LogViewer from './LogViewer.svelte';
+  import { onMount } from 'svelte';
 
-  wsApi.init();
+  import wsApi from './api/ws';
+  import TopNav from './components/TopNav.svelte';
+  import LogList from './components/LogList.svelte';
+  import LogViewer from './components/LogViewer.svelte';
 
   let railsServers = {};
 
@@ -12,7 +12,9 @@
 
   let currentLog = null;
 
-  $: isFullList = !currentLog;
+  let largeScreen = false;
+
+  $: wideList = largeScreen || !currentLog;
 
   const selectServer = (rid) => {
     if (currentRid === rid) return;
@@ -36,10 +38,6 @@
 
   $: {
     selectedLogs = currentServer ? currentServer.logs : [];
-  }
-
-  $: {
-    console.log(currentLog);
   }
 
   const loggedLogIds = new Set();
@@ -101,6 +99,17 @@
     railsServers = {};
     currentRid = null;
   };
+
+  const updateScreenSize = () => {
+    const w = window.innerWidth;
+    largeScreen = w > 1600;
+  };
+
+  onMount(() => {
+    wsApi.init();
+    window.addEventListener('resize', updateScreenSize);
+    updateScreenSize();
+  });
 </script>
 
 <TopNav {...{
@@ -110,20 +119,19 @@
 }} />
 
 <main>
-  <div class="container is-fluid">
-    <div class="columns is-variable is-1">
-      <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile {isFullList ? '' : 'minimal'}">
-        <LogList bind:selectedLog={currentLog} {...{
-          currentRid,
-          railsServers,
-          logs: selectedLogs,
-          addLogBack: addLog,
-        }} />
-      </div>
+  <div class="columns is-variable is-1">
+    <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile {wideList ? '' : 'minimal'}">
+      <LogList bind:selectedLog={currentLog} {...{
+        currentRid,
+        railsServers,
+        logs: selectedLogs,
+        addLogBack: addLog,
+        small: !wideList,
+      }} />
+    </div>
 
-      <div class="column is-relative viewer-column">
-        <LogViewer log={currentLog} />
-      </div>
+    <div class="column is-relative viewer-column">
+      <LogViewer log={currentLog} />
     </div>
   </div>
 </main>
