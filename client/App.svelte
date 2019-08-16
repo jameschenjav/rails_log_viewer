@@ -12,9 +12,11 @@
 
   let currentLog = null;
 
-  let largeScreen = false;
+  let largeWindow = false;
 
-  $: wideList = largeScreen || !currentLog;
+  let hover = false;
+
+  $: wideList = hover || largeWindow || !currentLog;
 
   const selectServer = (rid) => {
     if (currentRid === rid) return;
@@ -37,7 +39,9 @@
   let selectedLogs = [];
 
   $: {
-    selectedLogs = currentServer ? currentServer.logs : [];
+    if (currentServer) {
+      selectedLogs = currentServer.logs;
+    }
   }
 
   const loggedLogIds = new Set();
@@ -102,7 +106,7 @@
 
   const updateScreenSize = () => {
     const w = window.innerWidth;
-    largeScreen = w > 1600;
+    largeWindow = w > 1600;
   };
 
   onMount(() => {
@@ -120,7 +124,11 @@
 
 <main>
   <div class="columns is-variable is-1">
-    <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile {wideList ? '' : 'minimal'}">
+    <div
+      class="column list-column is-4-widescreen is-5-tablet is-12-mobile {wideList ? '' : 'minimal'}"
+      on:mouseenter={() => { hover = true; }}
+      on:mouseleave={() => { hover = false; }}
+    >
       <LogList bind:selectedLog={currentLog} {...{
         currentRid,
         railsServers,

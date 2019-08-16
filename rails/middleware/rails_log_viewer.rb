@@ -187,15 +187,27 @@ class RailsLogViewer
     @socket = nil
   end
 
-  def send_log(id, data)
-    split_chunks((@events[id] || {}).merge!(data)) do |chunk|
-      send_data(@socket, chunk)
+  def send_log(id, data, started)
+    return unless @events.key? id
+
+    begin
+      event_log = @events[id]
+      if started
+        event_log[:started]   ||= started
+        event_log[:ts]        ||= timestamp(started)
+        event_log[:finished]  ||= Time.now
+        event_log[:status]    ||= 500
+      end
+
+      split_chunks(event_log.merge(data)) do |chunk|
+        send_data(@socket, chunk)
+      end
+    rescue StandardError
+      check_connection
+      send_log(id, data, nil) if @socket && started
+    ensure
+      @events.delete(id)
     end
-  rescue StandardError
-    check_connection
-    send_log(id, data) if @socket
-  ensure
-    @events.delete(id)
   end
 
   CHUNK_LIMIT = CHUNK_SIZE - 32
@@ -244,32 +256,32 @@ class RailsLogViewer
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      rid = (started.to_f * 1000).to_i.to_s(36)
-      @events[id] ||= { ts: rid, started: started, view: [], orm: [] }
+      @events[id] ||= { ts: timestamp(started), started: started, view: [], orm: [] }
       return
     end
 
     payload = data.merge(event: event, finished: finished)
 
     if event == 'process_action.action_controller'
-      controller = payload[:controller].constantize.new
-      source = begin
-                 controller.method(payload[:action]).source_location
-               rescue StandardError
-                 nil
-               end
-      payload[:source] = source
+      payload[:controller].safe_constantize&.tap do |c|
+        begin
+          payload[:source] = c.instance_method(payload[:action]).source_location
+        rescue StandardError
+        end
+      end
+      payload[:source] ||= []
+
       if payload[:exception]
         e = @events[id]
         e&.merge!(payload)
       else
-        send_log(id, payload)
+        send_log(id, payload, started)
       end
       return
     end
 
     if event == 'inspect_exception.rails_log_viewer'
-      send_log(id, payload)
+      send_log(id, payload, started)
       return
     end
 
@@ -287,5 +299,9 @@ class RailsLogViewer
             :orm
           end
     e[key] << payload
+  end
+
+  def timestamp(ts)
+    (ts.to_f * 1000).to_i.to_s(36)
   end
 end

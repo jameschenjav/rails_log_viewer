@@ -24,15 +24,29 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.svelte$/,
+        test: /\.js$/,
+        exclude: /node_modules/,
         use: {
-          loader: 'svelte-loader',
+          loader: 'babel-loader',
           options: {
-            emitCss: true,
-            hotReload: false,
-            preprocess: sveltePreprocess({}),
+            cacheDirectory: !prod,
+            sourceMap: !prod,
           },
         },
+      },
+      {
+        test: /\.svelte$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'svelte-loader',
+            options: {
+              emitCss: true,
+              hotReload: false,
+              preprocess: sveltePreprocess({}),
+            },
+          },
+        ],
       },
       {
         test: /\.s[ac]ss$/,
@@ -69,7 +83,7 @@ module.exports = {
     host: '0.0.0.0',
     contentBase: 'public',
     headers: { 'Access-Control-Allow-Origin': '*' },
-    hot: false,
+    hot: true,
   },
   devtool: prod ? false : 'inline-source-map',
 };

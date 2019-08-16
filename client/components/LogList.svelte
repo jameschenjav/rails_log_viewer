@@ -27,7 +27,7 @@
 
   const uniq = (items) => [...(new Set(items))].sort();
 
-  $: allMethods = uniq(allLogs.map(({ method }) => method.toUpperCase()));
+  $: allMethods = uniq(allLogs.map(({ method }) => (method ? method.toUpperCase() : '')));
 
   $: allFormats = uniq(allLogs.map(({ format }) => format));
 

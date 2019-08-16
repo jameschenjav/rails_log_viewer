@@ -30,7 +30,7 @@
   </div>
 
   <div class="row">
-    <div class="col">File: {log.source.join(':')}</div>
+    <div class="col">File: {(log.source || []).join(':')}</div>
   </div>
 </div>
 
