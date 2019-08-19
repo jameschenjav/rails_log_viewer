@@ -5,7 +5,6 @@
   export let currentRid = null;
   export let railsServers = {};
   export let logs = [];
-  export let small = false;
   export let selectedLog = null;
   export let addLogBack = () => {};
 
@@ -98,9 +97,9 @@
     </p>
   </div>
   <footer class="card-footer">
-    <ListFilter title={!small && 'Method'} items={allMethods} bind:value={methodFilter} />
-    <ListFilter title={!small && 'Format'} items={allFormats} bind:value={formatFilter} />
-    <ListFilter title={!small && 'Status'} items={allStatuses} bind:value={statusFilter} />
+    <ListFilter title="Method" items={allMethods} bind:value={methodFilter} />
+    <ListFilter title="Format" items={allFormats} bind:value={formatFilter} />
+    <ListFilter title="Status" items={allStatuses} bind:value={statusFilter} />
   </footer>
 
   {#if (!filteredLogs.length)}
@@ -112,7 +111,6 @@
       <ListItem
         {log}
         {togglePinned}
-        {small}
         isSelected={selectedLog === log}
         isPinned={log.ts in currentPinned}
         {selectLog}

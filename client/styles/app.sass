@@ -6,6 +6,11 @@ body
   flex-direction: column
   height: 100vh
 
+#app
+  display: flex
+  flex-direction: column
+  overflow: hidden
+
 .no-wrap
   white-space: nowrap
 
@@ -13,3 +18,30 @@ body
   font-family: 'Fira Code'
   src: url("../assets/FiraCode-Regular.woff2") format("woff2")
   font-variant-ligatures: contextual
+
+.column.list-column
+  .small-only
+    display: none
+  &.any:not(:hover)
+    width: 250px
+    .wide-only
+      display: none
+    .small-only
+      display: flex
+    .duration
+      width: auto
+
+#helper
+  width: 1px
+  height: 1px
+  position: absolute
+  top: -100px
+
+a.copy-clipboard
+  display: none
+
+.fold-toggle:hover > a.copy-clipboard
+  display: inline
+
+.summary > .box
+  margin: 0 2px 2px 2px

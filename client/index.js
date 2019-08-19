@@ -4,7 +4,7 @@ import './styles/vendor.sass';
 import './styles/app.sass';
 import './assets/FiraCode-Regular.woff2';
 
-const app = new App({ target: document.body });
+const app = new App({ target: document.getElementById('app') });
 
 window.app = app;
 

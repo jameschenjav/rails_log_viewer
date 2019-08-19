@@ -10,11 +10,10 @@
 
 <div class="card-footer-item is-paddingless">
   <div class="field has-addons">
-    {#if title}
-      <div class="control">
-        <label class="button is-static is-small" for={selectId}>{title}:</label>
-      </div>
-    {/if}
+    <div class="control wide-only">
+      <label class="button is-static is-small" for={selectId}>{title}:</label>
+    </div>
+
     <div class="control is-expanded">
       <div class="select is-fullwidth is-small">
         <select id={selectId} bind:value={value}>

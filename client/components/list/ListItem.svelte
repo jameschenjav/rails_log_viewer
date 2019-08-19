@@ -2,7 +2,6 @@
   import { format } from 'date-fns';
 
   export let log;
-  export let small;
   export let isPinned;
   export let isSelected;
   export let togglePinned;
@@ -48,27 +47,32 @@
       >
         <i class="mdi {isPinned ? 'mdi-pin-off has-text-white' : 'mdi-pin has-text-black'}"></i>
       </a>
-      {format(log.started, small ? 'mm:ss' : 'HH:mm:ss.SSS')}
-    </span>
-    {#if small}
-      <span class="tag is-marginless is-lowercase {getStatusClass(log)}">
-        {log.method} {log.format} {log.status}
-      </span>
-    {:else}
-      <div class="tags has-addons is-marginless">
-        <span class="tag is-marginless {getMethodClass(log)}">{log.method}</span>
-        <span class="tag is-marginless is-dark is-uppercase">{log.format}</span>
+      <div class="time-block">
+        <span class="wide-only">{format(log.started, 'HH:')}</span>
+        <span>{format(log.started, 'mm:ss')}</span>
+        <span class="wide-only">{format(log.started, '.SSS')}</span>
       </div>
-      <span class="tag is-marginless {getStatusClass(log)}">{log.status}</span>
-    {/if}
-    <span class="duration has-text-right {small ? 'smaller' : ''}">{durationOf(log)}</span>
+    </span>
+
+    <span class="tag is-marginless is-lowercase small-only {getStatusClass(log)}">
+      {log.method} {log.format} {log.status}
+    </span>
+
+    <div class="tags has-addons is-marginless wide-only">
+      <span class="tag is-marginless {getMethodClass(log)}">{log.method}</span>
+      <span class="tag is-marginless is-dark is-uppercase">{log.format}</span>
+    </div>
+    <span class="tag is-marginless wide-only {getStatusClass(log)}">{log.status}</span>
+
+    <span class="duration has-text-right">{durationOf(log)}</span>
   </div>
   <a href
     class="row no-wrap link {isSelected ? 'has-text-link' : ''}"
     title={log.path}
     on:click|preventDefault={() => selectLog(log)}
   >
-    {small ? shortPath(log) : log.path}
+    <span class="small-only">{shortPath(log)}</span>
+    <span class="wide-only">{log.path}</span>
   </a>
 </div>
 
@@ -85,7 +89,11 @@
     justify-content: space-between;
   }
 
-  .duration:not(.smaller) {
+  .time-block {
+    display: inline-flex;
+  }
+
+  .duration {
     width: 50px;
   }
 

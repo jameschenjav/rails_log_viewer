@@ -12,12 +12,6 @@
 
   let currentLog = null;
 
-  let largeWindow = false;
-
-  let hover = false;
-
-  $: wideList = hover || largeWindow || !currentLog;
-
   const selectServer = (rid) => {
     if (currentRid === rid) return;
 
@@ -104,15 +98,8 @@
     currentRid = null;
   };
 
-  const updateScreenSize = () => {
-    const w = window.innerWidth;
-    largeWindow = w > 1600;
-  };
-
   onMount(() => {
     wsApi.init();
-    window.addEventListener('resize', updateScreenSize);
-    updateScreenSize();
   });
 </script>
 
@@ -124,22 +111,17 @@
 
 <main>
   <div class="columns is-variable is-1">
-    <div
-      class="column list-column is-4-widescreen is-5-tablet is-12-mobile {wideList ? '' : 'minimal'}"
-      on:mouseenter={() => { hover = true; }}
-      on:mouseleave={() => { hover = false; }}
-    >
+    <div class="column list-column is-4-widescreen is-5-tablet is-12-mobile{currentLog ? ' any' : ''}">
       <LogList bind:selectedLog={currentLog} {...{
         currentRid,
         railsServers,
         logs: selectedLogs,
         addLogBack: addLog,
-        small: !wideList,
       }} />
     </div>
 
     <div class="column is-relative viewer-column">
-      <LogViewer log={currentLog} />
+      <LogViewer log={currentLog} server={currentServer} />
     </div>
   </div>
 </main>
@@ -167,9 +149,6 @@ main {
 
 .column.list-column {
   display: flex;
-}
-
-.column.list-column.minimal {
-  width: 250px;
+  max-width: 500px
 }
 </style>
