@@ -1,3 +1,7 @@
+import iconVSCode from '../assets/vscode.svg';
+import iconVSCodium from '../assets/vscodium.svg';
+import iconVSCodeInsiders from '../assets/vscode-insiders.svg';
+
 const tmp = document.getElementById('tmp');
 
 export const copy = (text) => {
@@ -48,10 +52,53 @@ export class PathLinkGenerator {
 
 export const logMaps = new WeakMap();
 
-export const vscodeLinker = ({ text, path, line }, scheme = 'vscode') => ({
-  text,
-  path,
-  link: line
+export const vscodeLinker = ({ path, line }, scheme = 'vscode') => (
+  line
     ? `${scheme}://file/${encodeURI(path)}:${line}`
-    : `${scheme}://file/${encodeURI(path)}`,
-});
+    : `${scheme}://file/${encodeURI(path)}`
+);
+
+export const LINK_MAKERS = {
+  vscode: {
+    title: 'VSCode',
+    gen: (link) => vscodeLinker(link, 'vscode'),
+    icon: iconVSCode,
+    url: true,
+  },
+  vscodium: {
+    title: 'VSCodium',
+    gen: (link) => vscodeLinker(link, 'vscodium'),
+    icon: iconVSCodium,
+    url: true,
+  },
+  vscode_insiders: {
+    title: 'VSCode Insiders',
+    gen: (link) => vscodeLinker(link, 'vscode-insiders'),
+    icon: iconVSCodeInsiders,
+    url: true,
+  },
+  path_only: {
+    title: 'Path Only',
+    gen: ({ path }) => path,
+    abbr: 'PO',
+    url: false,
+  },
+  path_line: {
+    title: 'Path with line-no',
+    gen: ({ path, line }) => (line ? `${path}:${line}` : path),
+    abbr: 'PL',
+    url: false,
+  },
+  file_url: {
+    title: 'URL path-only',
+    gen: ({ path }) => `file://${path}`,
+    abbr: 'UP',
+    url: true,
+  },
+  file_url_line: {
+    title: 'URL with line-no',
+    gen: ({ path, line }) => `file://${line ? `${path}:${line}` : path}`,
+    abbr: 'UL',
+    url: true,
+  },
+};

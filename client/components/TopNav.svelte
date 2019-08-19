@@ -1,9 +1,13 @@
 <script>
+  import Settings from './Settings.svelte';
+
   export let railsServers = {};
   export let currentRid = null;
   export let selectServer = () => {};
 
   let active = false;
+
+  let settingsOpen = false;
 
   $: serverList = Object.keys(railsServers).sort();
 
@@ -15,6 +19,14 @@
   const onSelectServer = (rid) => {
     active = false;
     selectServer(rid);
+  };
+
+  const openSettings = () => {
+    settingsOpen = true;
+  };
+
+  const closeSettings = () => {
+    settingsOpen = false;
   };
 
   window.addEventListener('mouseup', () => {
@@ -46,6 +58,32 @@
       </div>
     </div>
 
-    <div class="navbar-end navbar-item">Rails Log Viewer</div>
+    <div class="modal {settingsOpen ? 'is-active' : ''}">
+      <div class="modal-background" on:click={closeSettings}></div>
+      <div class="modal-content">
+        <div class="message is-info">
+          <section class="message-header">
+            Settings
+            <button class="delete" on:click={closeSettings}></button>
+          </section>
+          <section class="message-body">
+            {#if settingsOpen}
+              <Settings />
+            {/if}
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end">
+      <div class="navbar-item">
+        <a class="button is-info is-outlined" href on:click|preventDefault={openSettings}>
+          <span class="icon"><i class="mdi mdi-settings"></i></span>
+          <span>Settings</span>
+        </a>
+      </div>
+
+      <div class="navbar-item">Rails Log Viewer</div>
+    </div>
   </div>
 </nav>

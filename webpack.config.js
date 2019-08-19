@@ -68,8 +68,12 @@ module.exports = {
         ],
       },
       {
-        test: /\.(woff|woff2|ttf|otf|eot)$/,
+        test: /\.(woff|woff2|ttf|otf|eot|svg)$/,
         loader: 'file-loader',
+        options: {
+          name: '[name]-[contenthash].[ext]',
+          outputPath: 'assets',
+        },
       },
     ],
   },
