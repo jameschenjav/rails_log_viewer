@@ -102,3 +102,16 @@ export const LINK_MAKERS = {
     url: true,
   },
 };
+
+export const linkGenerator = (pathLinkGen) => {
+  const { gen, title, icon } = LINK_MAKERS.vscode;
+  return (path) => {
+    const data = pathLinkGen.parse(path);
+    return {
+      ...data,
+      title,
+      icon,
+      link: gen(data),
+    };
+  };
+};

@@ -1,14 +1,16 @@
 <script>
   import { format } from 'date-fns';
   import JsonData from '../json/JsonData.svelte';
-  import { logMaps, vscodeLinker } from '../../api/utils';
+  import { logMaps, linkGenerator } from '../../api/utils';
 
   export let log;
   export let pathLinkGen;
 
   $: sourceFullPath = (log.source || []).join(':');
 
-  $: sourceLink = sourceFullPath && vscodeLinker(pathLinkGen.parse(sourceFullPath));
+  $: gen = pathLinkGen && linkGenerator(pathLinkGen);
+
+  $: sourceLink = sourceFullPath && gen && gen(sourceFullPath);
 
   const formatRuntime = (tm) => (tm && tm.toFixed(1));
 
