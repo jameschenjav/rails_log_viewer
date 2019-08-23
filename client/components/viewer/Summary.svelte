@@ -12,6 +12,9 @@
 
   $: sourceLink = sourceFullPath && gen && gen(sourceFullPath);
 
+  $: startedAt = new Date(log.started);
+  $: finishedAt = new Date(log.finished);
+
   const formatRuntime = (tm) => (tm && tm.toFixed(1));
 
   const optionGenerator = ({ level }, size) => ({
@@ -52,11 +55,11 @@
   <div class="row">
     <span class="col">
       <span class="subject">Started</span>
-      {format(log.started, 'HH:mm:ss.SSS')}
+      {format(startedAt, 'HH:mm:ss.SSS')}
     </span>
     <span class="col">
       <span class="subject">Finished</span>
-      {format(log.finished, 'HH:mm:ss.SSS')}
+      {format(finishedAt, 'HH:mm:ss.SSS')}
     </span>
     <span class="col">
       <span class="subject">DB</span>

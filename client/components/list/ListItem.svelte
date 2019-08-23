@@ -27,10 +27,10 @@
 
   const getStatusClass = ({ status }) => STATUS_COLOR_CLASSES[`${status}`[0]] || 'is-primary';
 
-  const durationOf = ({ finished, started }) => {
-    const d = Date.parse(finished) - Date.parse(started);
-    return d > 5000 ? `${(d / 1000).toFixed(1)}s` : `${d}ms`;
-  };
+  $: startedAt = new Date(log.started);
+  $: finishedAt = new Date(log.finished);
+  $: duration = finishedAt - startedAt;
+  $: durationStr = duration > 5000 ? `${(duration / 1000).toFixed(1)}s` : `${duration}ms`;
 
   const shortPath = ({ path }) => {
     const r = path.slice(path.lastIndexOf('/') + 1);
@@ -48,9 +48,9 @@
         <i class="mdi {isPinned ? 'mdi-pin-off has-text-white' : 'mdi-pin has-text-black'}"></i>
       </a>
       <div class="time-block">
-        <span class="wide-only">{format(log.started, 'HH:')}</span>
-        <span>{format(log.started, 'mm:ss')}</span>
-        <span class="wide-only">{format(log.started, '.SSS')}</span>
+        <span class="wide-only">{format(startedAt, 'HH:')}</span>
+        <span>{format(startedAt, 'mm:ss')}</span>
+        <span class="wide-only">{format(startedAt, '.SSS')}</span>
       </div>
     </span>
 
@@ -64,7 +64,7 @@
     </div>
     <span class="tag is-marginless wide-only {getStatusClass(log)}">{log.status}</span>
 
-    <span class="duration has-text-right">{durationOf(log)}</span>
+    <span class="duration has-text-right">{durationStr}</span>
   </div>
   <a href
     class="row no-wrap link {isSelected ? 'has-text-link' : ''}"
