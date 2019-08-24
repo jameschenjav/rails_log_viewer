@@ -1,7 +1,47 @@
 <script>
   import { LINK_MAKERS } from '../api/utils';
+  import { settings } from '../stores/settings';
 
-  $: links = Object.entries(LINK_MAKERS);
+  let links = [];
+  let defaultLink = '';
+
+  settings.subscribe(({ defaultLink: link, enabled }) => {
+    defaultLink = link;
+    links = Object.entries(LINK_MAKERS).map(([key, attrs]) => {
+      const options = enabled[key] || [];
+      return [key, {
+        ...attrs,
+        link: options.includes('link'),
+        copy: options.includes('copy'),
+      }];
+    });
+  });
+
+  const getOptions = (options) => ['copy', 'link'].filter((subject) => options[subject]);
+
+  const syncSettings = () => {
+    const newSettings = {
+      defaultLink,
+      enabled: Object.fromEntries(
+        links
+          .map(([key, options]) => [key, getOptions(options)])
+          .filter(([, options]) => options.length),
+      ),
+    };
+    localStorage.setItem('settings', JSON.stringify(newSettings));
+    settings.update(() => newSettings);
+  };
+
+  const changeDefaultLink = (e) => {
+    defaultLink = e.target.value;
+    syncSettings();
+  };
+
+  const toggleItem = (item, subject) => {
+    // eslint-disable-next-line no-param-reassign
+    item[subject] = !item[subject];
+    syncSettings();
+  };
 </script>
 
 <div class="columns">
@@ -16,7 +56,7 @@
 
       <div class="control is-expanded">
         <div class="select is-fullwidth">
-          <select>
+          <select value={defaultLink} on:change={changeDefaultLink}>
             <option>(None)</option>
             {#each links.filter(([, { url }]) => url) as [key, item] (key)}
               <option value={key}>{item.title}</option>
@@ -42,12 +82,16 @@
       <span class="description">{item.title}</span>
 
       <div class="control with-margin">
-        <label class="checkbox"><input type="checkbox">Copy</label>
+        <label class="checkbox">
+          <input type="checkbox" checked={item.copy} on:change={() => toggleItem(item, 'copy')}>Copy
+        </label>
       </div>
 
       <div class="control with-margin">
         {#if item.url}
-          <label class="checkbox"><input type="checkbox">Link</label>
+          <label class="checkbox">
+            <input type="checkbox" checked={item.link} on:change={() => toggleItem(item, 'link')}>Link
+          </label>
         {:else}
           <label class="checkbox" disabled><input type="checkbox" disabled>Link</label>
         {/if}

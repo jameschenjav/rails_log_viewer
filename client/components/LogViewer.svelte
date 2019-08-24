@@ -3,15 +3,14 @@
   import TabContent from './viewer/TabContent.svelte';
   import Summary from './viewer/Summary.svelte';
   import JsonData from './json/JsonData.svelte';
-  import { logMaps, PathLinkGenerator } from '../api/utils';
+  import { logMaps, PathLinkParser } from '../api/utils';
+  import { linkParser } from '../stores/settings';
 
   export let log;
   export let server;
 
-  let pathLinkGen = null;
-
   $: {
-    pathLinkGen = server ? new PathLinkGenerator(server.path) : pathLinkGen;
+    linkParser.update((oldlinkParser) => (server ? new PathLinkParser(server.path) : oldlinkParser));
   }
 
   let prevLog = null;
@@ -58,7 +57,7 @@
       </ul>
     </div>
     <TabContent current={activeTab} tab="summary">
-      <Summary {...{ log, pathLinkGen }} />
+      <Summary {log} />
     </TabContent>
     <TabContent current={activeTab} tab="db">
     </TabContent>

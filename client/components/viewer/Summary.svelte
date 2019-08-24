@@ -1,16 +1,13 @@
 <script>
   import { format } from 'date-fns';
+  import { logMaps } from '../../api/utils';
+
   import JsonData from '../json/JsonData.svelte';
-  import { logMaps, linkGenerator } from '../../api/utils';
+  import Link from '../Link.svelte';
 
   export let log;
-  export let pathLinkGen;
 
   $: sourceFullPath = (log.source || []).join(':');
-
-  $: gen = pathLinkGen && linkGenerator(pathLinkGen);
-
-  $: sourceLink = sourceFullPath && gen && gen(sourceFullPath);
 
   $: startedAt = new Date(log.started);
   $: finishedAt = new Date(log.finished);
@@ -90,9 +87,7 @@
   <div class="row">
     <span class="col">
       <span class="subject">Source File</span>
-      {#if sourceLink}
-        <a href={sourceLink.link} title={sourceLink.path}>{sourceLink.text}</a>
-      {/if}
+      <Link path={sourceFullPath} />
     </span>
   </div>
 

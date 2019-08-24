@@ -15,7 +15,7 @@ export const copyJsonToClipboard = (json) => {
   copy(JSON.stringify(json, null, '\t'));
 };
 
-export class PathLinkGenerator {
+export class PathLinkParser {
   constructor(basePath, mapBase) {
     this.basePath = basePath.endsWith('/') ? basePath.slice(0, basePath.length - 1) : basePath;
     const mb = mapBase || this.basePath;
@@ -103,15 +103,30 @@ export const LINK_MAKERS = {
   },
 };
 
-export const linkGenerator = (pathLinkGen) => {
-  const { gen, title, icon } = LINK_MAKERS.vscode;
-  return (path) => {
-    const data = pathLinkGen.parse(path);
-    return {
-      ...data,
-      title,
+export const generateLink = (data, { defaultLink, enabled }) => {
+  const defaultMaker = defaultLink ? LINK_MAKERS[defaultLink] : null;
+  const extra = { copy: [], link: [] };
+  Object.entries(enabled).forEach(([key, options]) => {
+    const {
+      icon, abbr, title,
+      gen,
+    } = LINK_MAKERS[key];
+    const item = {
       icon,
+      abbr,
+      title,
       link: gen(data),
     };
+    options.forEach((subject) => {
+      extra[subject].push(item);
+    });
+  });
+  return {
+    ...data,
+    title: data.path,
+    icon: defaultMaker?.icon,
+    abbr: defaultMaker?.abbr,
+    link: defaultMaker?.gen(data),
+    extra,
   };
 };
