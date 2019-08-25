@@ -86,7 +86,7 @@ class RailsConnection {
     this.buffManager = new BufferManager();
 
     c.on('data', this.onData.bind(this));
-    c.on('error', error => consola.error(error));
+    c.on('error', (error) => consola.error(error));
     c.on('end', this.onEnd.bind(this));
   }
 
@@ -157,7 +157,7 @@ class RailsConnection {
 const connectionHandler: ConnectionHandler = (context) => {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const { self } = IpcSocketServer;
-  const servers = self.railsConnections.map(rs => rs.meta);
+  const servers = self.railsConnections.map((rs) => rs.meta);
   context.connection.sendMessage({ type: 'init', servers });
 };
 

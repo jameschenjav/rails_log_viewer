@@ -1,27 +1,27 @@
 <script>
   import { LINK_MAKERS } from '../api/utils';
-  import { settings } from '../stores/settings';
+  import { settings, getDefaultSettings } from '../stores/settings';
 
   let links = [];
-  let defaultLink = '';
+  let defaultAction = '';
 
-  settings.subscribe(({ defaultLink: link, enabled }) => {
-    defaultLink = link;
+  settings.subscribe(({ defaultAction: action, enabled }) => {
+    defaultAction = action;
     links = Object.entries(LINK_MAKERS).map(([key, attrs]) => {
       const options = enabled[key] || [];
       return [key, {
         ...attrs,
-        link: options.includes('link'),
+        open: options.includes('open'),
         copy: options.includes('copy'),
       }];
     });
   });
 
-  const getOptions = (options) => ['copy', 'link'].filter((subject) => options[subject]);
+  const getOptions = (options) => ['copy', 'open'].filter((subject) => options[subject]);
 
   const syncSettings = () => {
     const newSettings = {
-      defaultLink,
+      defaultAction,
       enabled: Object.fromEntries(
         links
           .map(([key, options]) => [key, getOptions(options)])
@@ -32,8 +32,8 @@
     settings.update(() => newSettings);
   };
 
-  const changeDefaultLink = (e) => {
-    defaultLink = e.target.value;
+  const changedefaultAction = (e) => {
+    defaultAction = e.target.value;
     syncSettings();
   };
 
@@ -41,6 +41,11 @@
     // eslint-disable-next-line no-param-reassign
     item[subject] = !item[subject];
     syncSettings();
+  };
+
+  const resetDefaults = () => {
+    localStorage.removeItem('settings');
+    settings.update(getDefaultSettings);
   };
 </script>
 
@@ -51,15 +56,18 @@
   <div class="column">
     <div class="field has-addons">
       <div class="control wide-only">
-        <label class="button is-static">Default Link</label>
+        <label class="button is-static">Default:</label>
       </div>
 
       <div class="control is-expanded">
         <div class="select is-fullwidth">
-          <select value={defaultLink} on:change={changeDefaultLink}>
+          <select value={defaultAction} on:change={changedefaultAction}>
             <option>(None)</option>
-            {#each links.filter(([, { url }]) => url) as [key, item] (key)}
-              <option value={key}>{item.title}</option>
+            {#each links as [key, item] (key)}
+              {#if item.url}
+                <option value={`${key}.open`}>Open: {item.title}</option>
+              {/if}
+              <option value={`${key}.copy`}>Copy: {item.title}</option>
             {/each}
           </select>
         </div>
@@ -90,14 +98,19 @@
       <div class="control with-margin">
         {#if item.url}
           <label class="checkbox">
-            <input type="checkbox" checked={item.link} on:change={() => toggleItem(item, 'link')}>Link
+            <input type="checkbox" checked={item.open} on:change={() => toggleItem(item, 'open')}>Open
           </label>
         {:else}
-          <label class="checkbox" disabled><input type="checkbox" disabled>Link</label>
+          <label class="checkbox" disabled><input type="checkbox" disabled>Open</label>
         {/if}
       </div>
     </div>
   {/each}
+
+  <div class="column is-12">
+    <button class="button is-primary" on:click={resetDefaults}>Reset to Defaults</button>
+  </div>
+
 </div>
 
 <style>

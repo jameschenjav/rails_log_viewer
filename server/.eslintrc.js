@@ -16,6 +16,7 @@ module.exports = {
     }],
     '@typescript-eslint/no-explicit-any': ['error', { ignoreRestArgs: true }],
     '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true, varsIgnorePattern: '^_' }],
+    'max-classes-per-file': 0,
   },
   settings: {
     'import/extensions': ['.js', '.jsx', '.ts', '.tsx'],

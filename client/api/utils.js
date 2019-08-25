@@ -23,21 +23,26 @@ export class PathLinkParser {
   }
 
   parse(str) {
-    const [, rawPath = str, line = ''] = str.match(/^(.+?):(\d+)\b/) || [];
+    const [, rawPath = str, line = '', others = ''] = str.match(/^(.+?):(\d+)\b(.*)$/) || [];
     if (rawPath.startsWith('/')) {
       if (rawPath.startsWith(this.basePath)) {
-        return this.buildPath({ short: rawPath.slice(this.basePath.length + 1), line });
+        return this.buildPath({ short: rawPath.slice(this.basePath.length + 1), line, others });
       }
-      return this.buildPath({ full: rawPath, line });
+      return this.buildPath({ full: rawPath, line, others });
     }
-    return this.buildPath({ short: rawPath, line });
+    return this.buildPath({ short: rawPath, line, others });
   }
 
-  buildPath({ short, full, line }) {
+  buildPath({
+    short, full, line, others,
+  }) {
+    const extraText = others ? others.trim() : '';
     if (full) {
       return {
         path: full,
         text: line ? `${full}:${line}` : full,
+        isChild: false,
+        extraText,
         line,
       };
     }
@@ -45,6 +50,8 @@ export class PathLinkParser {
     return {
       path: `${this.mapBase}${short}`,
       text: line ? `${short}:${line}` : short,
+      isChild: true,
+      extraText,
       line,
     };
   }
@@ -103,9 +110,10 @@ export const LINK_MAKERS = {
   },
 };
 
-export const generateLink = (data, { defaultLink, enabled }) => {
-  const defaultMaker = defaultLink ? LINK_MAKERS[defaultLink] : null;
-  const extra = { copy: [], link: [] };
+export const generateLink = (data, { defaultAction, enabled }) => {
+  const [maker, action] = (defaultAction || '').split('.');
+  const defaultMaker = LINK_MAKERS[maker];
+  const extra = { copy: [], open: [] };
   Object.entries(enabled).forEach(([key, options]) => {
     const {
       icon, abbr, title,
@@ -127,6 +135,7 @@ export const generateLink = (data, { defaultLink, enabled }) => {
     icon: defaultMaker?.icon,
     abbr: defaultMaker?.abbr,
     link: defaultMaker?.gen(data),
+    action,
     extra,
   };
 };

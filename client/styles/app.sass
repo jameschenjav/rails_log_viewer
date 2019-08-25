@@ -40,6 +40,9 @@ input[type=checkbox]:disabled
   height: 1px
   position: absolute
   top: -100px
+  display: block
+  opacity: 0
+  user-select: none
 
 a.copy-clipboard
   display: none
@@ -49,3 +52,22 @@ a.copy-clipboard
 
 .summary > .box
   margin: 0 2px 2px 2px
+
+.summary .row.logs .box
+  margin: 1px 2px
+
+.link-wrap, a
+  display: inline-flex
+  align-items: center
+
+.backtrace > .link-wrap
+  display: flex
+  & > a, & > .text
+    flex: 1
+
+.backtrace.app-folder-only > .link-wrap.fullpath
+  display: none
+
+.link-wrap.fullpath > a > .path, .link-wrap.fullpath > .text > .path
+  opacity: 0.65
+  font-size: 85%

@@ -201,6 +201,7 @@ class RailsLogViewer
 
       split_chunks(event_log.merge(data)) do |chunk|
         send_data(@socket, chunk)
+        sleep 0.001
       end
     rescue StandardError
       check_connection
