@@ -1,4 +1,5 @@
 <script>
+  import Icon from './Icon.svelte';
   import { LINK_MAKERS } from '../api/utils';
   import { settings, getDefaultSettings } from '../stores/settings';
 
@@ -79,9 +80,9 @@
 <div class="columns is-multiline">
   {#each links as [key, item] (key)}
     <div class="column is-12">
-      <span class="icon-abbr">
+      <span class="settings icon-abbr">
         {#if item.icon}
-          <img src={item.icon} alt={item.title}>
+          <Icon name={item.icon} />
         {:else}
           <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}">{item.abbr}</div>
         {/if}
@@ -136,32 +137,9 @@ label.checkbox[disabled] {
   opacity: 0.5;
 }
 
-.icon-abbr {
-  display: inline-flex;
-  width: 36px;
-  height: 36px;
-  margin: 0 10px;
-  align-items: stretch;
-  justify-content: stretch;
-}
-
-.icon-abbr > img {
-  padding: 5px;
-}
-
 .circle {
   color: white;
   font-size: 15px;
-}
-
-.icon-abbr > * {
-  border: 1px solid #311b92;
-  border-radius: 20px;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  user-select: none;
 }
 
 .description {

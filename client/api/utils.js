@@ -1,7 +1,3 @@
-import iconVSCode from '../assets/vscode.svg';
-import iconVSCodium from '../assets/vscodium.svg';
-import iconVSCodeInsiders from '../assets/vscode-insiders.svg';
-
 const tmp = document.getElementById('tmp');
 
 export const copy = (text) => {
@@ -69,19 +65,19 @@ export const LINK_MAKERS = {
   vscode: {
     title: 'VSCode',
     gen: (link) => vscodeLinker(link, 'vscode'),
-    icon: iconVSCode,
+    icon: 'vscode',
     url: true,
   },
   vscodium: {
     title: 'VSCodium',
     gen: (link) => vscodeLinker(link, 'vscodium'),
-    icon: iconVSCodium,
+    icon: 'vscodium',
     url: true,
   },
   vscode_insiders: {
     title: 'VSCode Insiders',
     gen: (link) => vscodeLinker(link, 'vscode-insiders'),
-    icon: iconVSCodeInsiders,
+    icon: 'vscodeInsiders',
     url: true,
   },
   path_only: {

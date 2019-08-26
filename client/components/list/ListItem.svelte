@@ -1,6 +1,8 @@
 <script>
   import { format } from 'date-fns';
 
+  import Icon from '../Icon.svelte';
+
   export let log;
   export let isPinned;
   export let isSelected;
@@ -42,10 +44,10 @@
   <div class="row tags-row">
     <span class="time">
       <a href
-        class="icon pin {isPinned ? 'has-background-link' : 'has-background-warning'}"
+        class="icon pin {isPinned ? 'pin-off has-background-link' : 'pin-on has-background-warning'}"
         on:click|preventDefault={() => togglePinned(log)}
       >
-        <i class="mdi {isPinned ? 'mdi-pin-off has-text-white' : 'mdi-pin has-text-black'}"></i>
+        <Icon name={isPinned ? 'pinOff' : 'pin'} />
       </a>
       <div class="time-block">
         <span class="wide-only">{format(startedAt, 'HH:')}</span>

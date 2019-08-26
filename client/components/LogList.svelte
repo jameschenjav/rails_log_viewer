@@ -1,4 +1,5 @@
 <script>
+  import Icon from './Icon.svelte';
   import ListItem from './list/ListItem.svelte';
   import ListFilter from './list/ListFilter.svelte';
 
@@ -7,15 +8,18 @@
   export let logs = [];
   export let selectedLog = null;
   export let addLogBack = () => {};
+  export let clearLogs = () => {};
 
   let pinned = {};
+
+  const logSorter = ({ ts: s1 }, { ts: s2 }) => (s1 < s2 ? +1 : -1);
 
   $: currentPinned = pinned[currentRid] || {};
 
   $: allLogs = [
     ...Object.values(currentPinned),
     ...logs.filter(({ ts }) => !currentPinned[ts]),
-  ].sort(({ ts: s1 }, { ts: s2 }) => (s1 < s2 ? +1 : -1));
+  ].sort(logSorter);
 
   $: {
     const newPinned = {};
@@ -38,6 +42,8 @@
 
   let statusFilter = '';
 
+  let contentFilter = '';
+
   let filteredLogs = [];
 
   $: {
@@ -52,6 +58,11 @@
 
     if (statusFilter) {
       items = items.filter(({ status }) => `${status}`[0] === statusFilter);
+    }
+
+    const cf = contentFilter.trim().toLowerCase();
+    if (cf) {
+      items = items.filter(({ filterText }) => filterText.includes(cf));
     }
 
     filteredLogs = items;
@@ -81,18 +92,32 @@
   const selectLog = (log) => {
     selectedLog = selectedLog === log ? null : log;
   };
+
+  const clearAll = () => {
+    clearLogs(currentPinned);
+  };
 </script>
 
 <div class="card">
   <header class="card-header">
-    <p class="card-header-title">Logs</p>
+    <p class="card-header-title">
+      { filteredLogs.length } of { allLogs.length } Logs
+      <button class="button is-danger is-outlined" on:click={clearAll}>
+        <span class="icon"><Icon name="trashCanOutline" /></span>
+      </button>
+    </p>
   </header>
 
   <div class="field is-expanded is-marginless">
     <p class="control is-expanded has-icons-left">
-      <input class="input is-radiusless is-small" type="text" placeholder="Filter">
+      <input
+        class="input is-radiusless is-small"
+        bind:value={contentFilter}
+        type="text"
+        placeholder="Filter: path, params"
+      >
       <span class="icon is-left is-small">
-        <i class="mdi mdi-filter" aria-hidden="true"></i>
+        <Icon name="filter" />
       </span>
     </p>
   </div>
@@ -133,5 +158,9 @@
   nav.panel {
     overflow-x: hidden;
     overflow-y: auto;
+  }
+
+  .card-header-title {
+    justify-content: space-between;
   }
 </style>

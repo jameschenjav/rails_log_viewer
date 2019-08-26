@@ -1,4 +1,5 @@
 <script>
+  import Icon from '../Icon.svelte';
   import JsonValue from './JsonValue.svelte';
   import { copyJsonToClipboard } from '../../api/utils';
 
@@ -47,9 +48,9 @@
     class="fold-toggle has-text-{option.fold ? 'info close' : 'grey open'}"
     on:click|preventDefault={toggleFoldding}
   >
-    <i class="mdi mdi-{option.fold ? 'plus' : 'minus'}-box-outline"></i>
+    <Icon name={option.fold ? 'plusBoxOutline' : 'minusBoxOutline'} />
     <a href class="copy-clipboard" on:click|preventDefault|stopPropagation={() => copyJsonToClipboard(value)}>
-      <i class="mdi mdi-content-copy"></i>
+      <Icon name="contentCopy" />
     </a>
     <span class="json-object-size">
       {entries.length} entries...

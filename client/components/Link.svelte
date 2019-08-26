@@ -1,4 +1,5 @@
 <script>
+  import Icon from './Icon.svelte';
   import { settings, linkParser } from '../stores/settings';
   import { generateLink, copy } from '../api/utils';
 
@@ -22,20 +23,24 @@
 <div class="link-wrap {link.isChild ? 'child' : 'fullpath'}">
 {#if link.action === 'copy'}
   <a href={link.link} title={link.title} on:click|preventDefault={() => copyLink(link)}>
-    <i class="mdi mdi-content-copy" title={`Copy: ${link.link}`}></i>
-    <span class="path">{link.text}</span>
-    {#if link.extraText}<i class="info mdi mdi-information has-text-info" title={link.extraText}></i>{/if}
+    <Icon name="contentCopy" title={`Copy: ${link.link}`} />
+    <span class="link">
+      <span class="path">{link.text}</span>
+      {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
+    </span>
   </a>
 {:else if link.action === 'open'}
   <a href={link.link} title={link.title}>
-    <i class="mdi mdi-open-in-new" title={`Open: ${link.link}`}></i>
-    <span class="path">{link.text}</span>
-    {#if link.extraText}<i class="info mdi mdi-information has-text-info" title={link.extraText}></i>{/if}
+    <Icon name="openInNew" title={`Open: ${link.link}`} />
+    <span class="link">
+      <span class="path">{link.text}</span>
+      {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
+    </span>
   </a>
 {:else}
   <span title={link.title} class="text">
     <span class="path">{link.text}</span>
-    {#if link.extraText}<i class="info mdi mdi-information has-text-info" title={link.extraText}></i>{/if}
+    {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
   </span>
 {/if}
 
@@ -46,7 +51,7 @@
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <div class="is-small button">
-            <span class="icon"><i class="mdi mdi-content-copy"></i></span>
+            <span class="icon"><Icon name="contentCopy" /></span>
           </div>
         </div>
 
@@ -57,7 +62,7 @@
               {#each link.extra.copy as item}
               <a href={item.link} class="icon-abbr" on:click|preventDefault={() => copyLink(item)}>
                 {#if item.icon}
-                  <img src={item.icon} alt={item.title} title={item.title}>
+                  <Icon name={item.icon} title={item.title} />
                 {:else}
                   <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
                 {/if}
@@ -75,7 +80,7 @@
       <div class="dropdown is-hoverable">
         <div class="dropdown-trigger">
           <div class="is-small button">
-            <span class="icon"><i class="mdi mdi-open-in-new"></i></span>
+            <span class="icon"><Icon name="openInNew" /></span>
           </div>
         </div>
 
@@ -86,7 +91,7 @@
               {#each link.extra.open as item}
               <a href={item.link} class="icon-abbr">
                 {#if item.icon}
-                  <img src={item.icon} alt={item.title} title={item.title}>
+                  <Icon name={item.icon} title={item.title} />
                 {:else}
                   <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
                 {/if}
@@ -108,11 +113,11 @@
   align-items: center;
 }
 
-.link-wrap > a, a > i {
+.link-wrap > a {
   margin-right: 4px;
 }
 
-a > i.info, span.text > i.info {
+a > .info, span.text > .info {
   margin-left: 3px;
 }
 
@@ -152,10 +157,6 @@ a > i.info, span.text > i.info {
   justify-content: stretch;
 }
 
-.icon-abbr > img {
-  padding: 3px;
-}
-
 .circle {
   color: white;
   font-size: 12px;
@@ -185,5 +186,11 @@ a > i.info, span.text > i.info {
 
 .circle.url {
   background-color: #1e88e5;
+}
+
+.link > .info {
+  color: #444;
+  font-size: 80%;
+  user-select: none;
 }
 </style>

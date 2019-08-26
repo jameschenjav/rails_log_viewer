@@ -40,7 +40,7 @@ input[type=checkbox]:disabled
   height: 1px
   position: absolute
   top: -100px
-  display: block
+  display: block !important
   opacity: 0
   user-select: none
 
@@ -71,3 +71,84 @@ a.copy-clipboard
 .link-wrap.fullpath > a > .path, .link-wrap.fullpath > .text > .path
   opacity: 0.65
   font-size: 85%
+
+i.mdi-icon
+  display: flex
+  flex: 1
+  svg
+    flex: 1
+
+.icon > i.mdi-icon > svg
+    padding: 2px
+
+.is-info.is-outlined
+  &.i.mdi-icon > svg, & i.mdi-icon > svg
+    fill: #209cee
+
+.is-danger.is-outlined
+  &.i.mdi-icon > svg, & i.mdi-icon > svg
+    fill: #ff3860
+
+.is-danger.is-outlined, .is-info.is-outlined
+  &.i.mdi-icon:hover > svg, &:hover i.mdi-icon > svg, &.i.mdi-icon:focus > svg, &:focus i.mdi-icon > svg
+    fill: white
+
+.icon-abbr
+  display: inline-flex
+  width: 36px
+  height: 36px
+  margin: 0 10px
+  align-items: stretch
+  justify-content: stretch
+
+.icon-abbr > *
+  border: 1px solid #311b92
+  flex: 1
+  display: flex
+  align-items: center
+  justify-content: center
+  user-select: none
+
+.icon-abbr.settings > *
+  border-radius: 20px
+
+.icon-abbr.settings > i.mdi-icon
+  padding: 4px
+
+.icon-abbr > svg
+  padding: 5px
+
+a.fold-toggle
+  vertical-align: middle
+  i.mdi-icon
+    width: 15px
+    margin: 0 3px
+    svg
+      fill: #888
+
+.json-object-open, .json-object-close, .json-array-open, .json-array-close
+  vertical-align: middle
+
+.control.has-icons-left .icon, .control.has-icons-right .icon
+  svg
+    fill: #dbdbdb
+    padding: 5px
+
+.icon.pin > i.mdi-icon > svg
+  padding: 4px
+
+.icon.pin.pin-on > i.mdi-icon > svg
+  fill: #444
+
+.icon.pin.pin-off > i.mdi-icon > svg
+  fill: white
+
+.link-wrap.child a:not(.icon-abbr) i.mdi-icon
+  width: 16px
+  flex: 0 0 auto
+  fill: #3273dc
+  margin-right: 3px
+
+.link-wrap.child a.icon-abbr i.mdi-icon
+  border-radius: 5px
+  padding: 2px

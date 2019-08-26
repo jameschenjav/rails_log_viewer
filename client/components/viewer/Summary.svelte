@@ -46,13 +46,12 @@
       } = log.exception;
 
       exception = {
-        backtrace,
+        backtrace: backtrace.filter((x) => x.startsWith('/')),
         type,
         message,
         original,
         others: Object.keys(others).length ? JSON.stringify(others, null, '\t') : null,
       };
-      console.log(log);
     } else {
       exception = null;
     }

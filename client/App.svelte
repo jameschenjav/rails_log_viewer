@@ -49,6 +49,14 @@
     if (server === currentServer) selectedLogs = server.logs;
   };
 
+  const clearLogs = (pinned) => {
+    const pinnedTs = new Set(Object.keys(pinned));
+    railsServers = {
+      ...railsServers,
+      [currentRid]: { ...currentServer, logs: selectedLogs.filter(({ ts }) => pinnedTs.has(ts)) },
+    };
+  };
+
   wsApi.handlers = {
     data(log) {
       const { rid } = log;
@@ -63,7 +71,10 @@
         clearTimeout(t);
         loggedLogIds.delete(id);
       }, 1000);
-      addLog(log, server);
+
+      const { path, params } = log;
+      const filterText = [path, JSON.stringify(params)].join(',').toLowerCase();
+      addLog({ ...log, filterText }, server);
     },
 
     init({ servers }) {
@@ -115,6 +126,7 @@
       <LogList bind:selectedLog={currentLog} {...{
         currentRid,
         railsServers,
+        clearLogs,
         logs: selectedLogs,
         addLogBack: addLog,
       }} />

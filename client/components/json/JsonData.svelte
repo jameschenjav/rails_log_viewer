@@ -1,4 +1,5 @@
 <script>
+  import Icon from '../Icon.svelte';
   import JsonValue from './JsonValue.svelte';
   import { copyJsonToClipboard } from '../../api/utils';
 
@@ -37,7 +38,7 @@
       </label>
       <a href class="button is-small" on:click|preventDefault={() => copyJsonToClipboard(json)}>
         <span class="icon">
-          <i class="mdi mdi-content-copy"></i>
+          <Icon name="contentCopy" />
         </span>
         <span>Copy</span>
       </a>

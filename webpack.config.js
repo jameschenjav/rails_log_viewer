@@ -1,6 +1,7 @@
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const sveltePreprocess = require('svelte-preprocess');
 const path = require('path');
+const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const mode = process.env.NODE_ENV || 'development';
 const prod = mode === 'production';
@@ -68,7 +69,11 @@ module.exports = {
         ],
       },
       {
-        test: /\.(woff|woff2|ttf|otf|eot|svg)$/,
+        test: /\.svg$/,
+        loader: 'svg-inline-loader',
+      },
+      {
+        test: /\.(woff|woff2|ttf|otf|eot)$/,
         loader: 'file-loader',
         options: {
           name: '[name]-[contenthash].[ext]',
@@ -81,6 +86,11 @@ module.exports = {
   plugins: prod
     ? [
       new MiniCssExtractPlugin({ filename: '[name].css' }),
+      new BundleAnalyzerPlugin({
+        reportFilename: path.resolve(__dirname, 'tmp/bundle-analyzer-report.html'),
+        analyzerMode: 'static',
+        openAnalyzer: false,
+      }),
     ]
     : [],
   devServer: {

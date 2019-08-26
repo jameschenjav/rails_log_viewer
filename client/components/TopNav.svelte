@@ -1,5 +1,6 @@
 <script>
   import Settings from './Settings.svelte';
+  import Icon from './Icon.svelte';
 
   export let railsServers = {};
   export let currentRid = null;
@@ -78,7 +79,7 @@
     <div class="navbar-end">
       <div class="navbar-item">
         <a class="button is-info is-outlined" href on:click|preventDefault={openSettings}>
-          <span class="icon"><i class="mdi mdi-settings"></i></span>
+          <span class="icon"><Icon name="settings" /></span>
           <span>Settings</span>
         </a>
       </div>
