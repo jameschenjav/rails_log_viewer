@@ -1,7 +1,7 @@
 <script>
   import ViewTab from './viewer/ViewTab.svelte';
   import TabContent from './viewer/TabContent.svelte';
-  import Summary from './viewer/Summary.svelte';
+  import Summary from './viewer/summary/Index.svelte';
   import JsonData from './json/JsonData.svelte';
   import { logMaps, PathLinkParser } from '../api/utils';
   import { linkParser } from '../stores/settings';
