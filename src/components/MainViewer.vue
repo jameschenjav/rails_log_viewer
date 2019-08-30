@@ -14,8 +14,7 @@
 </template>
 
 <script>
-import format from 'date-fns/format';
-import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
+import { format, differenceInMilliseconds } from 'date-fns';
 
 import RequestPanel from './RequestPanel';
 
@@ -56,8 +55,8 @@ export default {
         path: extractPath(log.path),
         displayPath: this.hasRequest ? shortenPath(log.path) : null,
         status: (log.status || 500).toString(),
-        timestamp: format(log.started, 'MM-DD HH:mm:ss'),
-        timespan: differenceInMilliseconds(log.finished, log.started),
+        timestamp: format(new Date(log.started), 'MM-DD HH:mm:ss'),
+        timespan: differenceInMilliseconds(new Date(log.finished), new Date(log.started)),
       }));
     },
 

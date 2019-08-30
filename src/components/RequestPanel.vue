@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import differenceInMilliseconds from 'date-fns/difference_in_milliseconds';
+import { differenceInMilliseconds } from 'date-fns';
 
 import LogSummary from './LogSummary';
 import LogModel from './LogModel';
@@ -101,7 +101,7 @@ export default {
         return {
           path,
           stack,
-          time: differenceInMilliseconds(finished, started),
+          time: differenceInMilliseconds(new Date(finished), new Date(started)),
           event: event.split('.')[0].replace('render_', ''),
         };
       })) : [];

@@ -9,7 +9,7 @@ const consola = require('consola');
 const connectLogger = require('./logger');
 
 const host = env.HOST || '127.0.0.1';
-const port = env.PORT || 3333;
+const port = env.PORT || 8300;
 
 function start() {
   const app = new Koa();

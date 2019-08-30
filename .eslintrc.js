@@ -17,13 +17,15 @@ module.exports = {
       'error',
       'always',
       {
-        'js': 'never',
-        'vue': 'never',
+        js: 'never',
+        vue: 'never',
       },
     ],
   },
   parserOptions: {
     parser: 'babel-eslint',
+    ecmaVersion: 2019,
+    sourceType: 'module',
   },
   globals: {
     // window: true,
