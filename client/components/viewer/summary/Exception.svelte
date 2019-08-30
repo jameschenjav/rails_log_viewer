@@ -35,7 +35,7 @@
 </script>
 
 {#if exception}
-  <span class="col">
+  <div class="col">
     <div class="subject">Exception</div>
     <div class="exception box">
       <div class="row">
@@ -76,10 +76,16 @@
         {/each}
       </div>
     </div>
-  </span>
+  </div>
 {/if}
 
 <style>
+div.col {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .exception.box {
   display: flex;
   flex-direction: column;

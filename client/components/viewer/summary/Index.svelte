@@ -50,6 +50,12 @@
 </div>
 
 <style>
+.summary {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .row {
   display: flex;
   margin: 5px 3px;

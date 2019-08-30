@@ -152,3 +152,19 @@ a.fold-toggle
 .link-wrap.child a.icon-abbr i.mdi-icon
   border-radius: 5px
   padding: 2px
+
+.view
+  .group > .path > .lines > .line > .link-wrap
+    height: 36px
+    & > .text + .extra-info > .info
+      min-width: 60px
+      max-width: 200px
+      overflow: hidden
+      white-space: nowrap
+      text-overflow: ellipsis
+    & > .text + .extra-info > .extra
+      position: absolute
+      left: 3px
+      z-index: 2
+    &:not(:hover) > .text + .extra-info > .extra
+      display: none

@@ -22,7 +22,7 @@
   const STATUS_COLOR_CLASSES = {
     1: 'is-link',
     2: 'is-success',
-    3: 'is-info',
+    3: 'is-light',
     4: 'is-warning',
     5: 'is-danger',
   };

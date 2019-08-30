@@ -1,9 +1,11 @@
 <script>
   import Icon from './Icon.svelte';
   import { settings, linkParser } from '../stores/settings';
-  import { generateLink, copy } from '../api/utils';
+  import { generateLink, copyToClipboard } from '../api/utils';
 
   export let path;
+  export let info = null;
+  export let extraText = null;
 
   let linkSetting = {};
   let parseLink = () => '';
@@ -15,96 +17,101 @@
 
   $: link = generateLink(data, linkSetting);
 
+  $: extraInfo = info || link.extraInfo;
+
   const copyLink = ({ link: url }) => {
-    copy(url);
+    copyToClipboard(url);
   };
 </script>
 
 <div class="link-wrap {link.isChild ? 'child' : 'fullpath'}">
-{#if link.action === 'copy'}
-  <a href={link.link} title={link.title} on:click|preventDefault={() => copyLink(link)}>
-    <Icon name="contentCopy" title={`Copy: ${link.link}`} />
-    <span class="link">
-      <span class="path">{link.text}</span>
-      {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
-    </span>
-  </a>
-{:else if link.action === 'open'}
-  <a href={link.link} title={link.title}>
-    <Icon name="openInNew" title={`Open: ${link.link}`} />
-    <span class="link">
-      <span class="path">{link.text}</span>
-      {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
-    </span>
-  </a>
-{:else}
   <span title={link.title} class="text">
-    <span class="path">{link.text}</span>
-    {#if link.extraText}<span class="info">{link.extraText}</span>{/if}
+  {#if link.action === 'copy'}
+    <a href={link.link} on:click|preventDefault={() => copyLink(link)}>
+      <Icon name="contentCopy" title={`Copy: ${link.link}`} />
+      <span class="path"><slot>{link.text}</slot></span>
+    </a>
+  {:else if link.action === 'open'}
+    <a href={link.link}>
+      <Icon name="openInNew" title={`Open: ${link.link}`} />
+      <span class="path"><slot>{link.text}</slot></span>
+    </a>
+  {:else}
+      <span class="path"><slot>{link.text}</slot></span>
+  {/if}
+
+  {#if extraInfo}
+    <span class="info" title={extraInfo}>{extraInfo}</span>
+  {/if}
   </span>
-{/if}
 
-{#if link.extra.copy.length || link.extra.open.length}
-  <div class="extra field has-addons">
-  {#if link.extra.copy.length}
-    <div class="control">
-      <div class="dropdown is-hoverable">
-        <div class="dropdown-trigger">
-          <div class="is-small button">
-            <span class="icon"><Icon name="contentCopy" /></span>
+  <span class="extra-info">
+  {#if extraText}
+    <span class="info" title={extraText}>{extraText}</span>
+  {/if}
+
+  {#if link.extra.copy.length || link.extra.open.length}
+    <div class="extra field has-addons">
+    {#if link.extra.copy.length}
+      <div class="control">
+        <div class="dropdown is-hoverable">
+          <div class="dropdown-trigger">
+            <div class="is-small button">
+              <span class="icon"><Icon name="contentCopy" /></span>
+            </div>
           </div>
-        </div>
 
-        <div class="dropdown-menu copy">
-          <div class="dropdown-content">
-            <div class="dropdown-item">
-              Copy:
-              {#each link.extra.copy as item}
-              <a href={item.link} class="icon-abbr" on:click|preventDefault={() => copyLink(item)}>
-                {#if item.icon}
-                  <Icon name={item.icon} title={item.title} />
-                {:else}
-                  <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
-                {/if}
-              </a>
-              {/each}
+          <div class="dropdown-menu copy">
+            <div class="dropdown-content">
+              <div class="dropdown-item">
+                Copy:
+                {#each link.extra.copy as item}
+                <a href={item.link} class="icon-abbr" on:click|preventDefault={() => copyLink(item)}>
+                  {#if item.icon}
+                    <Icon name={item.icon} title={item.title} />
+                  {:else}
+                    <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
+                  {/if}
+                </a>
+                {/each}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  {/if}
+    {/if}
 
-  {#if link.extra.open.length}
-    <div class="control">
-      <div class="dropdown is-hoverable">
-        <div class="dropdown-trigger">
-          <div class="is-small button">
-            <span class="icon"><Icon name="openInNew" /></span>
+    {#if link.extra.open.length}
+      <div class="control">
+        <div class="dropdown is-hoverable">
+          <div class="dropdown-trigger">
+            <div class="is-small button">
+              <span class="icon"><Icon name="openInNew" /></span>
+            </div>
           </div>
-        </div>
 
-        <div class="dropdown-menu open">
-          <div class="dropdown-content">
-            <div class="dropdown-item">
-              Open:
-              {#each link.extra.open as item}
-              <a href={item.link} class="icon-abbr">
-                {#if item.icon}
-                  <Icon name={item.icon} title={item.title} />
-                {:else}
-                  <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
-                {/if}
-              </a>
-              {/each}
+          <div class="dropdown-menu open">
+            <div class="dropdown-content">
+              <div class="dropdown-item">
+                Open:
+                {#each link.extra.open as item}
+                <a href={item.link} class="icon-abbr">
+                  {#if item.icon}
+                    <Icon name={item.icon} title={item.title} />
+                  {:else}
+                    <div class="circle {item.abbr[0] === 'P' ? 'path' : 'url'}" title={item.title}>{item.abbr}</div>
+                  {/if}
+                </a>
+                {/each}
+              </div>
             </div>
           </div>
         </div>
       </div>
+    {/if}
     </div>
   {/if}
-  </div>
-{/if}
+  </span>
 </div>
 
 <style>
@@ -113,15 +120,7 @@
   align-items: center;
 }
 
-.link-wrap > a {
-  margin-right: 4px;
-}
-
-a > .info, span.text > .info {
-  margin-left: 3px;
-}
-
-.link-wrap > a {
+.link-wrap > .text {
   word-break: break-all;
   margin-right: 4px;
 }
@@ -188,9 +187,17 @@ a > .info, span.text > .info {
   background-color: #1e88e5;
 }
 
-.link > .info {
+.extra-info {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.info {
   color: #444;
   font-size: 80%;
   user-select: none;
+  flex: 0 0 auto;
+  max-width: 35%;
 }
 </style>

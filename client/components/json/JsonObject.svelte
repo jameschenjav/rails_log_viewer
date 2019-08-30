@@ -7,7 +7,10 @@
 
   $: value = data.value;
 
-  $: entries = Object.entries(value);
+  $: entries = (data.ordered
+    ? Object.entries(value).sort(([k1], [k2]) => k1.localeCompare(k2))
+    : Object.entries(value)
+  );
 
   $: separator = data.style === 'ruby' ? ' => ' : ': ';
 

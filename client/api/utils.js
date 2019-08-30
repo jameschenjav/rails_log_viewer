@@ -1,6 +1,8 @@
+export { default as PathLinkParser } from './PathLinkParser';
+
 const tmp = document.getElementById('tmp');
 
-export const copy = (text) => {
+export const copyToClipboard = (text) => {
   tmp.value = text;
   tmp.focus();
   tmp.select();
@@ -8,50 +10,8 @@ export const copy = (text) => {
 };
 
 export const copyJsonToClipboard = (json) => {
-  copy(JSON.stringify(json, null, '\t'));
+  copyToClipboard(JSON.stringify(json, null, '\t'));
 };
-
-export class PathLinkParser {
-  constructor(basePath, mapBase) {
-    this.basePath = basePath.endsWith('/') ? basePath.slice(0, basePath.length - 1) : basePath;
-    const mb = mapBase || this.basePath;
-    this.mapBase = mb.endsWith('/') ? mb : `${mb}/`;
-  }
-
-  parse(str) {
-    const [, rawPath = str, line = '', others = ''] = str.match(/^(.+?):(\d+)\b(.*)$/) || [];
-    if (rawPath.startsWith('/')) {
-      if (rawPath.startsWith(this.basePath)) {
-        return this.buildPath({ short: rawPath.slice(this.basePath.length + 1), line, others });
-      }
-      return this.buildPath({ full: rawPath, line, others });
-    }
-    return this.buildPath({ short: rawPath, line, others });
-  }
-
-  buildPath({
-    short, full, line, others,
-  }) {
-    const extraText = others ? others.trim() : '';
-    if (full) {
-      return {
-        path: full,
-        text: line ? `${full}:${line}` : full,
-        isChild: false,
-        extraText,
-        line,
-      };
-    }
-
-    return {
-      path: `${this.mapBase}${short}`,
-      text: line ? `${short}:${line}` : short,
-      isChild: true,
-      extraText,
-      line,
-    };
-  }
-}
 
 export const logMaps = new WeakMap();
 
@@ -135,3 +95,5 @@ export const generateLink = (data, { defaultAction, enabled }) => {
     extra,
   };
 };
+
+export const uniq = (items) => [...(new Set(items))];

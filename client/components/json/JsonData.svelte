@@ -11,6 +11,8 @@
 
   let style = 'json';
 
+  let ordered = false;
+
   $: {
     data = {
       value: json,
@@ -21,6 +23,7 @@
         ...(data.options || options),
       }),
       style,
+      ordered,
     };
   }
 </script>
@@ -42,6 +45,10 @@
         </span>
         <span>Copy</span>
       </a>
+      <label class="checkbox">
+        <input type="checkbox" bind:checked={ordered}>
+        Sorted by Keys
+      </label>
     </div>
   {/if}
   <pre class="json-block">

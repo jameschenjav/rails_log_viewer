@@ -22,3 +22,21 @@
 {:else}
   <span class="json-value json-unknown">{value}</span>
 {/if}
+
+<style>
+.json-string {
+  color: #7b1fa2;
+}
+
+.json-number {
+  color: #0288d1;
+}
+
+.json-boolean {
+  color: #f57c00;
+}
+
+.json-null {
+  color: #d32f2f;
+}
+</style>
