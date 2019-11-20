@@ -2,6 +2,19 @@ export { default as PathLinkParser } from './PathLinkParser';
 
 const tmp = document.getElementById('tmp');
 
+let anchor = null;
+
+export const openUrl = (url) => {
+  if (!anchor) {
+    const iframe = document.getElementById('link-container');
+    const doc = iframe.contentDocument;
+    doc.body.innerHTML = '<a href id="link"></a>';
+    anchor = doc.getElementById('link');
+  }
+  anchor.href = url;
+  anchor.click();
+};
+
 export const copyToClipboard = (text) => {
   tmp.value = text;
   tmp.focus();

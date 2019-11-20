@@ -1,7 +1,7 @@
 <script>
   import Icon from './Icon.svelte';
   import { settings, linkParser } from '../stores/settings';
-  import { generateLink, copyToClipboard } from '../api/utils';
+  import { generateLink, copyToClipboard, openUrl } from '../api/utils';
 
   export let path;
   export let info = null;
@@ -22,6 +22,10 @@
   const copyLink = ({ link: url }) => {
     copyToClipboard(url);
   };
+
+  const openLink = ({ link: url }) => {
+    openUrl(url);
+  };
 </script>
 
 <div class="link-wrap {link.isChild ? 'child' : 'fullpath'}">
@@ -32,7 +36,7 @@
       <span class="path"><slot>{link.text}</slot></span>
     </a>
   {:else if link.action === 'open'}
-    <a href={link.link}>
+    <a href={link.link} on:click|preventDefault={() => openLink(link)}>
       <Icon name="openInNew" title={`Open: ${link.link}`} />
       <span class="path"><slot>{link.text}</slot></span>
     </a>
@@ -95,7 +99,7 @@
               <div class="dropdown-item">
                 Open:
                 {#each link.extra.open as item}
-                <a href={item.link} class="icon-abbr">
+                <a href={item.link} class="icon-abbr" on:click|preventDefault={() => openLink(link)}>
                   {#if item.icon}
                     <Icon name={item.icon} title={item.title} />
                   {:else}

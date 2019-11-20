@@ -26,6 +26,7 @@
 <style>
 .json-string {
   color: #7b1fa2;
+  word-break: break-all;
 }
 
 .json-number {
