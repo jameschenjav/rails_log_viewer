@@ -1,13 +1,14 @@
-import zlib from 'zlib';
-import fs from 'fs';
+import { inflate as inflateSync } from 'zlib';
+import { unlink as unlinkSync } from 'fs';
 import { createServer, Server, Socket } from 'net';
 import { promisify } from 'util';
-import consola from 'consola';
 
-import { WebSocketServer, ConnectionHandler } from './wss';
+import type { SocketStream } from 'fastify-websocket';
 
-const inflate = promisify(zlib.inflate);
-const unlink = promisify(fs.unlink);
+import { server } from './server';
+
+const inflate = promisify(inflateSync);
+const unlink = promisify(unlinkSync);
 
 const SOCKET_NAME = '/tmp/rlv.sock';
 const BLOCK_SIZE = 8 * 1024 - 32;
@@ -75,10 +76,18 @@ class BufferManager {
   private buffers = new Map<number, BufferItem>();
 }
 
+const broadcast = (message: Record<string, unknown>): void => {
+  const json = JSON.stringify(message);
+  // eslint-disable-next-line @typescript-eslint/no-use-before-define
+  [...wsData.connections.values()].forEach((conn) => {
+    conn.socket.send(json);
+  });
+};
+
 class RailsConnection {
   public get id(): string { return this.metaData ? this.metaData.pid : ''; }
 
-  public get meta(): RailsMeta { return this.metaData; }
+  public get meta(): RailsMeta | null { return this.metaData; }
 
   public constructor(c: Socket, s: IpcSocketServer) {
     this.connection = c;
@@ -86,13 +95,13 @@ class RailsConnection {
     this.buffManager = new BufferManager();
 
     c.on('data', this.onData.bind(this));
-    c.on('error', (error) => consola.error(error));
+    c.on('error', (error) => server.log.error(error));
     c.on('end', this.onEnd.bind(this));
   }
 
   protected broadcast(message: Record<string, unknown>, type = 'data'): void {
-    consola.info('broadcast', this.id, type);
-    this.server.broadcast(this, { type, ...message });
+    server.log.info('broadcast', this.id, type);
+    broadcast({ rid: this.id, type, ...message });
   }
 
   protected async onData(data: Buffer): Promise<void> {
@@ -134,10 +143,10 @@ class RailsConnection {
           return;
         }
         default:
-          consola.warn(`unsupported id ${eventId.toString(16)}`, data, this.id);
+          server.log.warn(`unsupported id ${eventId.toString(16)}`, data, this.id);
       }
     } catch (e) {
-      consola.error('[DATA]', this.id, e);
+      server.log.error('[DATA]', this.id, e);
     }
   }
 
@@ -151,20 +160,11 @@ class RailsConnection {
 
   private buffManager: BufferManager;
 
-  private metaData: RailsMeta;
+  private metaData: RailsMeta | null = null;
 }
-
-const connectionHandler: ConnectionHandler = (context) => {
-  // eslint-disable-next-line @typescript-eslint/no-use-before-define
-  const { self } = IpcSocketServer;
-  const servers = self.railsConnections.map((rs) => rs.meta);
-  context.connection.sendMessage({ type: 'init', servers });
-};
 
 class IpcSocketServer {
   public readonly server: Server;
-
-  public readonly wss = new WebSocketServer({ connectionHandler });
 
   public static self: IpcSocketServer;
 
@@ -178,36 +178,66 @@ class IpcSocketServer {
   }
 
   public close(connection: Socket): void {
-    consola.log('rails closed');
-    const r = this.connections.get(connection);
+    server.log.info('rails closed');
+    const r = this.connections.get(connection)!;
     this.connections.delete(connection);
-    this.broadcast(r, { type: 'closed' });
-  }
-
-  public broadcast(r: RailsConnection, message: Record<string, unknown>): void {
-    this.wss.broadcast({ rid: r.id, ...message });
+    broadcast({ rid: r.id, type: 'closed' });
   }
 
   protected connect(connection: Socket): void {
-    consola.log('rails connected');
+    server.log.info('rails connected');
     this.connections.set(connection, new RailsConnection(connection, this));
   }
 
   private connections = new Map<Socket, RailsConnection>();
 }
 
-const ss = new IpcSocketServer();
+const wsData = {
+  baseId: Date.now(),
+  connections: new Map<string, SocketStream>(),
+  ipcSocket: new IpcSocketServer(),
+};
 
-export const wsServer = ss.wss;
+const genId = (): string => {
+  wsData.baseId += 1;
+  return wsData.baseId.toString(36);
+};
+
+export const wsConnectionHandler = (connection: SocketStream) => {
+  const id = genId();
+
+  wsData.connections.set(id, connection);
+
+  connection.socket.on('ping', () => {
+    connection.socket.send('pong');
+  });
+
+  connection.socket.on('close', () => {
+    wsData.connections.delete(id);
+  });
+
+  const servers = wsData.ipcSocket.railsConnections.map((rs) => rs.meta);
+  connection.socket.send({ type: 'init', servers });
+};
+
+export const startHeartBeat = (): NodeJS.Timer => setInterval(() => {
+  [...wsData.connections.values()].forEach((conn) => {
+    conn.socket.send('ping');
+  });
+}, 15_000);
+
+export const stopHeartBeat = (timer: NodeJS.Timer): void => {
+  clearInterval(timer);
+};
 
 export const startIpc = async (): Promise<void> => {
-  if (ss.server.listening) return;
+  if (wsData.ipcSocket.server.listening) return;
 
   try {
     await unlink(SOCKET_NAME);
   } catch (e) {
-    consola.warn(e);
+    server.log.warn(e);
   }
 
-  ss.server.listen(SOCKET_NAME);
+  wsData.ipcSocket.server.listen(SOCKET_NAME);
 };
