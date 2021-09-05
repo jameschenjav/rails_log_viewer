@@ -217,7 +217,7 @@ export const wsConnectionHandler = (connection: SocketStream) => {
   });
 
   const servers = wsData.ipcSocket.railsConnections.map((rs) => rs.meta);
-  connection.socket.send({ type: 'init', servers });
+  connection.socket.send(JSON.stringify({ type: 'init', servers }));
 };
 
 export const startHeartBeat = (): NodeJS.Timer => setInterval(() => {
