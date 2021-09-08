@@ -12,3 +12,32 @@
 #root > * {
   display: flex;
 }
+
+#main {
+  max-height: calc(100vh - 92px);
+}
+
+#action-list {
+  min-width: 450px;
+}
+
+#action-list li {
+  height: 50px;
+}
+
+#action-list li > code.method {
+  width: 50px;
+}
+
+#action-list li > code.format {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  font-size: 12px;
+  padding: 2px 3px;
+  width: 36px;
+  text-align: right;
+  text-transform: uppercase;
+}

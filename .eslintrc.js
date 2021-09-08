@@ -1,4 +1,4 @@
-const extensions = ['.ts'];
+const extensions = ['.js', '.ts', '.jsx', '.tsx'];
 
 module.exports = {
   root: true,
@@ -21,7 +21,9 @@ module.exports = {
       'always',
       {
         ts: 'never',
+        tsx: 'never',
         js: 'never',
+        jsx: 'never',
       },
     ],
   },
@@ -41,7 +43,19 @@ module.exports = {
         project: './tsconfig.json',
       },
       rules: {
+        'max-len': ['error', 120],
         'max-classes-per-file': 'off',
+
+        'import/extensions': [
+          'error',
+          'ignorePackages',
+          {
+            ts: 'never',
+            tsx: 'never',
+            js: 'never',
+            jsx: 'never',
+          },
+        ],
       },
     },
     {

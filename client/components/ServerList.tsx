@@ -1,7 +1,61 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 
-const ServerList = () => (
-  <header className="flex-grow-0 flex-shrink-0">Servers</header>
-);
+import { useAppDispatch, useAppSelector } from '../lib/store';
+import { select } from '../lib/connectionsSlice';
+import { RailsConnection } from '../lib/types';
+
+const getOption = (s: RailsConnection): { text: string, value: string, disabled: boolean } => {
+  const {
+    rid,
+    host,
+    port,
+    path,
+    connected,
+  } = s;
+  if (connected) {
+    return { value: rid, disabled: false, text: `${host}:${port}@${path} (open: ${rid})` };
+  }
+
+  return { value: rid, disabled: true, text: `${host}:${port}@${path} (closed: ${rid})` };
+};
+
+const formatServerInfo = (s: RailsConnection): JSX.Element => {
+  const time = new Date(s.started);
+  const lines = [
+    `Rails: ${s.version} (Ruby: ${s.ruby})`,
+    `Started: ${time.toLocaleDateString()} ${time.toLocaleTimeString()}`,
+  ];
+  return (<pre className={s.connected ? 'text-green-700' : 'text-red-700'}>{lines.join('\n')}</pre>);
+};
+
+const ServerList = () => {
+  const dispatch = useAppDispatch();
+
+  const { list, selectedId } = useAppSelector(({ connections }) => connections);
+
+  const selected = (selectedId && list.find(({ rid }) => rid === selectedId)) || false;
+
+  const onSelect = (ev: ChangeEvent<HTMLSelectElement>) => {
+    dispatch(select({ rid: ev.target.value }));
+  };
+
+  return (
+    <header className="flex-grow-0 flex-shrink-0 flex flex-row items-center">
+      <select
+        className="p-2 mx-5 border-2 rounded-md border-blue-200 focus:border-blue-800"
+        value={selectedId}
+        onChange={onSelect}
+      >
+        {
+          list.map((s) => getOption(s)).map(({ value, text, disabled }) => (
+            <option key={value} value={value} className={disabled ? 'text-gray-600' : ''}>{text}</option>
+          ))
+        }
+      </select>
+
+      <div className="mx-10 my-3 text-sm">{selected ? formatServerInfo(selected) : null}</div>
+    </header>
+  );
+};
 
 export default ServerList;
