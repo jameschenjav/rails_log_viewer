@@ -68,7 +68,7 @@ interface PayloadData {
   orm: DataOrm[],
   params: { controller: string, action: string },
   path: string,
-  source: [string, number],
+  source: [] | [string, number],
   started: string,
   status: number,
   ts: string,
@@ -77,6 +77,11 @@ interface PayloadData {
 }
 
 export interface ActionData extends PayloadData { aid: string }
+
+export interface ActionDataProps {
+  rid: string,
+  action: ActionData,
+}
 
 export interface MessageData extends PayloadBase, PayloadData {
   type: 'data',

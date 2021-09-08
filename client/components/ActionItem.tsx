@@ -1,8 +1,11 @@
 import React, { KeyboardEvent } from 'react';
 
 import { ActionData } from '../lib/types';
+import {
+  formatDuration, getDuration, getDurationColor, getStatusColor,
+} from '../lib/utils';
 
-interface Props {
+interface ActionItemProps {
   action: ActionData,
   selected: boolean,
   onSelect: (args: { aid: string }) => void,
@@ -13,16 +16,7 @@ const getItemText = ({ path }: ActionData): string => {
   return pathname;
 };
 
-const getDurationColor = (dur: number): string => {
-  if (dur < 200) return 'text-green-800';
-  if (dur > 10000) return 'text-red-500';
-  if (dur > 2000) return 'text-red-600';
-  if (dur > 1200) return 'text-red-700';
-  if (dur > 800) return 'text-red-800';
-  return 'text-blue-800';
-};
-
-const ActionItem = ({ action, selected, onSelect }: Props) => {
+const ActionItem = ({ action, selected, onSelect }: ActionItemProps) => {
   const onClick = () => {
     onSelect(selected ? { aid: '' } : action);
   };
@@ -35,10 +29,7 @@ const ActionItem = ({ action, selected, onSelect }: Props) => {
     ? 'font-bold bg-yellow-200 border-blue-800'
     : 'bg-white border-blue-200';
 
-  const tmBeg = new Date(action.started);
-  const tmEnd = new Date(action.finished);
-  const dur = tmEnd.getTime() - tmBeg.getTime();
-  const duration = dur > 1000 ? `${(dur / 1000).toFixed(2)}s` : `${dur}ms`;
+  const dur = getDuration(action.started, action.finished);
 
   return (
     <li
@@ -49,8 +40,8 @@ const ActionItem = ({ action, selected, onSelect }: Props) => {
       onKeyPress={onKeyPress}
     >
       <code className="method flex-grow-0 mx-2">
-        <div className="text-sm">{`${action.method}:`}</div>
-        <div className={`text-xs ${getDurationColor(dur)}`}>{duration}</div>
+        <div className={`text-sm ${getStatusColor(action.status)}`}>{`${action.method}:`}</div>
+        <div className={`text-xs ${getDurationColor(dur)}`}>{formatDuration(dur)}</div>
       </code>
       <code className="path inline-flex flex-1 overflow-hidden break-all mr-3 text-sm">
         {getItemText(action)}

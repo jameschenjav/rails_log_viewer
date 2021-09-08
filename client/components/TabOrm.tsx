@@ -1,6 +1,7 @@
 import React from 'react';
+import { ActionDataProps } from '../lib/types';
 
-const TabOrm = () => (
+const TabOrm = ({ action }: ActionDataProps) => (
   <div>Orm</div>
 );
 

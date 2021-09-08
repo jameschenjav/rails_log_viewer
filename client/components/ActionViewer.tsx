@@ -21,14 +21,16 @@ const ActionViewer = () => {
 
   const tab = action && activeTab;
 
+  if (action) { console.log(action); }
+
   return action
     ? (
-      <main className="flex-1 text-center px-2 flex flex-col">
-        <TabMenu />
+      <main className="flex-1 px-2 flex flex-col">
+        <TabMenu action={action} rid={rid} />
         <div id="tabs-wrapper" className="border flex-1 overflow-x-hidden overflow-y-auto border-blue-500">
-          {tab === 'Summary' ? (<TabSummary />) : null}
-          {tab === 'ORM' ? (<TabOrm />) : null}
-          {tab === 'View' ? (<TabView />) : null}
+          {tab === 'Summary' ? (<TabSummary action={action} rid={rid} />) : null}
+          {tab === 'ORM' ? (<TabOrm action={action} rid={rid} />) : null}
+          {tab === 'View' ? (<TabView action={action} rid={rid} />) : null}
         </div>
       </main>
     )

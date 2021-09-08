@@ -1,6 +1,7 @@
 import React from 'react';
+import { ActionDataProps } from '../lib/types';
 
-const TabView = () => (
+const TabView = ({ action }: ActionDataProps) => (
   <div>View</div>
 );
 

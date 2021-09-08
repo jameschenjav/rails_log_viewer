@@ -3,6 +3,7 @@ import React, { ChangeEvent } from 'react';
 import { useAppDispatch, useAppSelector } from '../lib/store';
 import { select } from '../lib/connectionsSlice';
 import { RailsConnection } from '../lib/types';
+import { formatTime } from '../lib/utils';
 
 const getOption = (s: RailsConnection): { text: string, value: string, disabled: boolean } => {
   const {
@@ -20,10 +21,9 @@ const getOption = (s: RailsConnection): { text: string, value: string, disabled:
 };
 
 const formatServerInfo = (s: RailsConnection): JSX.Element => {
-  const time = new Date(s.started);
   const lines = [
     `Rails: ${s.version} (Ruby: ${s.ruby})`,
-    `Started: ${time.toLocaleDateString()} ${time.toLocaleTimeString()}`,
+    `Started: ${formatTime(s.started)}`,
   ];
   return (<pre className={s.connected ? 'text-green-700' : 'text-red-700'}>{lines.join('\n')}</pre>);
 };

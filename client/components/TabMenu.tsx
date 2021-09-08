@@ -1,12 +1,9 @@
 import React, { KeyboardEvent } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../lib/store';
-import { ActionData } from '../lib/types';
+import { ActionData, ActionDataProps } from '../lib/types';
 import { setActiveTab } from '../lib/uiSlice';
-
-const formatDuration = (span: number): string => (
-  span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${span.toFixed(1)}ms`
-);
+import { formatDuration } from '../lib/utils';
 
 const getTabText = (action: ActionData, tab: string): string => {
   switch (tab) {
@@ -16,20 +13,10 @@ const getTabText = (action: ActionData, tab: string): string => {
   }
 };
 
-const TabMenu = () => {
-  const {
-    ui: { tabs, activeTab },
-    aid: id,
-    list,
-  } = useAppSelector(({ connections, actions, ui }) => ({
-    ui,
-    aid: actions.selections[connections.selectedId] || '',
-    list: actions.lists[connections.selectedId] || [],
-  }));
+const TabMenu = ({ action }: ActionDataProps) => {
+  const { tabs, activeTab } = useAppSelector(({ ui }) => ui);
 
   const dispatch = useAppDispatch();
-
-  const action = list.find(({ aid }) => aid === id)!;
 
   const menuTabs = tabs.map((tab) => ({
     key: tab,
@@ -47,7 +34,7 @@ const TabMenu = () => {
   };
 
   return (
-    <ul id="action-menu" className="flex flex-0 items-stretch justify-around">
+    <ul id="action-menu" className="flex flex-0 items-stretch justify-around text-center">
       {
         menuTabs.map(({ key, text, style }) => (
           <li

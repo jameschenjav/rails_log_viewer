@@ -2,6 +2,25 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ActionData } from './types';
 
+import { rid2Path } from './connectionsSlice';
+
+const shortenPath = (path: string, root: string): string => (
+  path.startsWith(root) ? `@${path.slice(root.length)}` : path
+);
+
+const shortenActionData = (rid: string, data: ActionData): ActionData => {
+  const { source, view } = data;
+  const root = rid2Path[rid];
+  return {
+    ...data,
+    source: source.length ? [shortenPath(source[0], root), source[1]] : [],
+    view: view.map(({ identifier, ...v }) => ({
+      identifier: shortenPath(identifier, root),
+      ...v,
+    })),
+  };
+};
+
 const actionsSlice = createSlice({
   name: 'actions',
   initialState: {
@@ -12,7 +31,7 @@ const actionsSlice = createSlice({
     push: (state, action: PayloadAction<ActionData & { rid: string }>) => {
       const { rid, ...data } = action.payload;
       const list = [...(state.lists[rid] || [])];
-      list.push(data);
+      list.push(shortenActionData(rid, data));
       return { lists: { ...state.lists, [rid]: list }, selections: state.selections };
     },
 

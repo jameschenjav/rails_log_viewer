@@ -20,7 +20,9 @@ const ActionList = () => {
   const onSelect = ({ aid: id }: { aid: string }) => {
     dispatch(choose({ rid, aid: id }));
 
-    const action = list.find(({ aid: actionId }) => actionId === id)!;
+    const action = list.find(({ aid: actionId }) => actionId === id);
+    if (!action) return;
+
     const tabs = ['Summary'];
     if (action.orm.length) tabs.push('ORM');
     if (action.view.length) tabs.push('View');

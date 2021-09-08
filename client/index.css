@@ -30,14 +30,41 @@
 }
 
 #action-list li > code.format {
+  @apply uppercase text-right text-white;
   position: absolute;
   bottom: 0;
   right: 0;
   background-color: rgba(0, 0, 0, 0.3);
-  color: white;
   font-size: 12px;
   padding: 2px 3px;
   width: 36px;
-  text-align: right;
-  text-transform: uppercase;
+}
+
+dl {
+  width: 100%;
+}
+
+dl > dt, dl > dd {
+  display: inline-block;
+}
+
+dl > dt {
+  @apply font-bold align-middle;
+  width: 120px;
+}
+
+dl > dd {
+  @apply font-mono text-sm whitespace-pre-wrap break-all py-2 align-middle;
+}
+
+dl > dt:not(.full) + dd {
+  width: calc(50% - 120px);
+}
+
+dl > dt.full + dd {
+  width: calc(100% - 120px);
+}
+
+h3 {
+  @apply mt-3 mb-2 text-xl text-blue-900;
 }
