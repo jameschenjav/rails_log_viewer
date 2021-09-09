@@ -16,14 +16,14 @@ const TabView = ({ action }: ActionDataProps) => {
 
   return (
     <div className="p-3">
-      <h3>Call Stack</h3>
+      <h3>Invoke Tree</h3>
       {
         rootViews.map((v) => (
           <ViewTree key={`vt-${v.key}`} view={v} indent={0} />
         ))
       }
 
-      <h3>Views</h3>
+      <h3>Call Stack</h3>
       {
         views.map(({ view: v, key }) => (
           <ViewItem key={key} view={v} />
