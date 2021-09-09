@@ -20,6 +20,10 @@ const updatePaths = (list: RailsConnection[]): void => {
   });
 };
 
+const reorderConnections = (list: RailsConnection[]): void => {
+  list.sort((c1, c2) => Number(c2.connected) - Number(c1.connected) || c2.started.localeCompare(c1.started));
+};
+
 const connectionsSlice = createSlice({
   name: 'connections',
   initialState: {
@@ -31,6 +35,7 @@ const connectionsSlice = createSlice({
       const list = uniqBy(state.list.concat(action.payload), 'rid');
       updatePaths(action.payload);
       const selectedId = reselectConnection(state.selectedId, list);
+      reorderConnections(list);
       return { list, selectedId };
     },
 
@@ -38,7 +43,20 @@ const connectionsSlice = createSlice({
       const { rid } = action.payload;
       const list = state.list.map((s) => (s.rid === rid ? { ...s, connected: false } : s));
       delete rid2Path[rid];
+      reorderConnections(list);
       return { list, selectedId: state.selectedId };
+    },
+
+    remove: (state, action: PayloadAction<{ ridList: string[] }>) => {
+      const { selectedId } = state;
+      const rids = new Set(action.payload.ridList.filter((rid) => rid !== selectedId));
+
+      const list = state.list.filter(({ rid }) => !rids.has(rid));
+      reorderConnections(list);
+      return {
+        ...state,
+        list,
+      };
     },
 
     select: (state, action: PayloadAction<{ rid: string }>) => ({
@@ -48,6 +66,8 @@ const connectionsSlice = createSlice({
   },
 });
 
-export const { add, closed, select } = connectionsSlice.actions;
+export const {
+  add, closed, remove, select,
+} = connectionsSlice.actions;
 
 export default connectionsSlice.reducer;

@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from 'react';
 
 import { useAppDispatch, useAppSelector } from '../lib/store';
-import { select } from '../lib/connectionsSlice';
+import { remove, select } from '../lib/connectionsSlice';
 import { RailsConnection } from '../lib/types';
 import { formatTime } from '../lib/utils';
 
@@ -31,12 +31,22 @@ const formatServerInfo = (s: RailsConnection): JSX.Element => {
 const ServerList = () => {
   const dispatch = useAppDispatch();
 
-  const { list, selectedId } = useAppSelector(({ connections }) => connections);
+  const {
+    connections: { list, selectedId },
+    actions: { lists },
+  } = useAppSelector(({ connections, actions }) => ({ connections, actions }));
 
   const selected = (selectedId && list.find(({ rid }) => rid === selectedId)) || false;
 
+  const connectedCount = list.filter(({ connected }) => connected).length;
+
   const onSelect = (ev: ChangeEvent<HTMLSelectElement>) => {
     dispatch(select({ rid: ev.target.value }));
+
+    const emptyRids = list.filter(({ connected }) => !connected)
+      .map(({ rid }) => rid)
+      .filter((rid) => !lists[rid]?.length);
+    dispatch(remove({ ridList: emptyRids }));
   };
 
   return (
@@ -54,6 +64,8 @@ const ServerList = () => {
       </select>
 
       <div className="mx-10 my-3 text-sm">{selected ? formatServerInfo(selected) : null}</div>
+
+      <div>{`${list.length} Connections (${connectedCount} Open / ${list.length - connectedCount} Closed)`}</div>
     </header>
   );
 };
