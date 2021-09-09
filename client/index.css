@@ -17,6 +17,10 @@
   max-height: calc(100vh - 92px);
 }
 
+main.show {
+  min-width: calc(100vw - 500px);
+}
+
 #action-list {
   min-width: 450px;
 }

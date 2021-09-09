@@ -1,8 +1,8 @@
 import React from 'react';
-import { ActionDataProps } from '../lib/types';
+import { ActionDataProps } from '../../lib/types';
 import {
   formatDuration, formatTime, getDuration, getStatusColor,
-} from '../lib/utils';
+} from '../../lib/utils';
 
 const TabSummary = ({ action: a }: ActionDataProps) => {
   const statusColor = getStatusColor(a.status);

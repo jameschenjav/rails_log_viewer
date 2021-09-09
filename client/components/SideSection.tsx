@@ -1,8 +1,8 @@
 import React from 'react';
 
 import { useAppSelector } from '../lib/store';
-import ActionList from './ActionList';
-import SideMenuBar from './SideMenuBar';
+import ActionList from './side/ActionList';
+import SideMenuBar from './side/SideMenuBar';
 
 const SideSection = () => {
   const rid = useAppSelector(({ connections }) => connections.selectedId);

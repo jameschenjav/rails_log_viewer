@@ -1,9 +1,9 @@
 import React, { KeyboardEvent } from 'react';
 
-import { ActionData } from '../lib/types';
+import { ActionData } from '../../lib/types';
 import {
   formatDuration, getDuration, getDurationColor, getStatusColor,
-} from '../lib/utils';
+} from '../../lib/utils';
 
 interface ActionItemProps {
   action: ActionData,
@@ -22,7 +22,7 @@ const ActionItem = ({ action, selected, onSelect }: ActionItemProps) => {
   };
 
   const onKeyPress = (ev: KeyboardEvent<HTMLLIElement>) => {
-    console.log(ev);
+    console.log('onKeyPress', ev);
   };
 
   const className = selected

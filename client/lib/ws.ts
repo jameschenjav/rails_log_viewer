@@ -14,7 +14,7 @@ export const initWebsocket = () => {
     const { data } = ev;
     try {
       const msg = toCamelCaseKeys(JSON.parse(data)) as WsMessage;
-      console.debug(msg);
+      // console.debug(msg);
       switch (msg.type) {
         case 'init': {
           const { servers } = msg;

@@ -1,8 +1,8 @@
 import React from 'react';
-import { ActionDataProps } from '../lib/types';
+import { ActionDataProps } from '../../lib/types';
 
 const TabOrm = ({ action }: ActionDataProps) => (
-  <div>Orm</div>
+  <div className="px-5 py-2">Orm</div>
 );
 
 export default TabOrm;

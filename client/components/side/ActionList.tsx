@@ -2,9 +2,9 @@ import React from 'react';
 
 import ActionItem from './ActionItem';
 
-import { choose } from '../lib/actionsSlice';
-import { useAppDispatch, useAppSelector } from '../lib/store';
-import { updateTabs } from '../lib/uiSlice';
+import { choose } from '../../lib/actionsSlice';
+import { useAppDispatch, useAppSelector } from '../../lib/store';
+import { updateTabs } from '../../lib/uiSlice';
 
 const ActionList = () => {
   const dispatch = useAppDispatch();
@@ -22,6 +22,7 @@ const ActionList = () => {
 
     const action = list.find(({ aid: actionId }) => actionId === id);
     if (!action) return;
+    console.log(action);
 
     const tabs = ['Summary'];
     if (action.orm.length) tabs.push('ORM');

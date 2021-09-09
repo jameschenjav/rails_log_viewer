@@ -1,7 +1,7 @@
 import React, { MouseEvent } from 'react';
 
-import { clearList } from '../lib/actionsSlice';
-import { useAppDispatch, useAppSelector } from '../lib/store';
+import { clearList } from '../../lib/actionsSlice';
+import { useAppDispatch, useAppSelector } from '../../lib/store';
 
 const SideMenuBar = () => {
   const dispatch = useAppDispatch();

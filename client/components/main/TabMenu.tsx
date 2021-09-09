@@ -1,9 +1,9 @@
 import React, { KeyboardEvent } from 'react';
 
-import { useAppDispatch, useAppSelector } from '../lib/store';
-import { ActionData, ActionDataProps } from '../lib/types';
-import { setActiveTab } from '../lib/uiSlice';
-import { formatDuration } from '../lib/utils';
+import { useAppDispatch, useAppSelector } from '../../lib/store';
+import { ActionData, ActionDataProps } from '../../lib/types';
+import { setActiveTab } from '../../lib/uiSlice';
+import { formatDuration } from '../../lib/utils';
 
 const getTabText = (action: ActionData, tab: string): string => {
   switch (tab) {
@@ -30,7 +30,7 @@ const TabMenu = ({ action }: ActionDataProps) => {
   };
 
   const onKeyPress = (ev: KeyboardEvent<HTMLLIElement>) => {
-    console.log(ev);
+    console.debug('onKeyPress', ev);
   };
 
   return (

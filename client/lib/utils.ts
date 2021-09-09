@@ -31,7 +31,7 @@ export const toCamelCaseKeys = <T> (x: T): T => {
 };
 
 export const formatDuration = (span: number): string => (
-  span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${span.toFixed(0)}ms`
+  span && span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${(span || 0).toFixed(0)}ms`
 );
 
 export const getDurationColor = (dur: number): string => {
