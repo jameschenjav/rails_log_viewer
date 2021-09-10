@@ -1,13 +1,13 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import ViewTree from './ViewTree';
 import ViewItem from './ViewItem';
 
 import { ActionDataProps } from '../../lib/types';
-import { mergeViewStack } from '../../lib/viewStack';
+import { mergeViewStack } from '../../lib/stackUtils';
 
 const TabView = ({ action }: ActionDataProps) => {
-  const rootViews = mergeViewStack(action);
+  const rootViews = useMemo(() => mergeViewStack(action), [action]);
 
   const views = [...action.view].map((view, idx) => ({
     view,

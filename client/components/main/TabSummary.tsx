@@ -57,7 +57,7 @@ const TabSummary = ({ action: a }: ActionDataProps) => {
       }
         {
         // view
-        a.view.length ? (
+        a.view.length || a.viewRuntime ? (
           <>
             <hr />
             <h3>Views Overview</h3>

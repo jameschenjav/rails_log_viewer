@@ -72,3 +72,11 @@ dl > dt.full + dd {
 h3 {
   @apply mt-3 mb-2 text-xl text-blue-900;
 }
+
+hr {
+  @apply my-1;
+}
+
+.active-record-item .sql-item {
+  @apply px-14;
+}

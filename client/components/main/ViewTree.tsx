@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import repeat from 'lodash/repeat';
 
-import { ViewItem } from '../../lib/viewStack';
+import { ViewItem } from '../../lib/stackUtils';
 
 interface ViewTreeProps {
   view: ViewItem,

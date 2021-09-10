@@ -35,7 +35,7 @@ interface EventBase {
   started: string,
 }
 
-interface DataOrmSql extends EventBase {
+export interface DataOrmSql extends EventBase {
   event: 'sql.active_record',
   binds: [string, string | number | boolean | null][],
   connectionId: number,
@@ -44,7 +44,7 @@ interface DataOrmSql extends EventBase {
   statementName: string | null,
 }
 
-interface DataOrmAr extends EventBase {
+export interface DataOrmAr extends EventBase {
   event: 'instantiation.active_record',
   className: string,
   recordCount: number,

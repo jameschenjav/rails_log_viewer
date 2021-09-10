@@ -45,6 +45,7 @@ module.exports = {
       rules: {
         'max-len': ['error', 120],
         'max-classes-per-file': 'off',
+        'react/require-default-props': 'off',
 
         'import/extensions': [
           'error',
