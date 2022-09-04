@@ -8,7 +8,7 @@ interface ViewItemProps {
   view: View,
 }
 
-const ViewItem = ({ view: v }: ViewItemProps) => {
+function ViewItem({ view: v }: ViewItemProps) {
   const [showStack, setShowStack] = useState(false);
 
   const stack = v.stack.join('\n') || '<UNKNOWN>';
@@ -39,6 +39,6 @@ const ViewItem = ({ view: v }: ViewItemProps) => {
       }
     </div>
   );
-};
+}
 
 export default ViewItem;

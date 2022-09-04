@@ -16,7 +16,7 @@ const getItemText = ({ path }: ActionData): string => {
   return pathname;
 };
 
-const ActionItem = ({ action, selected, onSelect }: ActionItemProps) => {
+function ActionItem({ action, selected, onSelect }: ActionItemProps) {
   const onClick = () => {
     onSelect(selected ? { aid: '' } : action);
   };
@@ -49,6 +49,6 @@ const ActionItem = ({ action, selected, onSelect }: ActionItemProps) => {
       <code className="format">{action.format}</code>
     </li>
   );
-};
+}
 
 export default ActionItem;

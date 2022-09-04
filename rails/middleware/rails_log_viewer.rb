@@ -12,7 +12,7 @@ class RailsLogViewer
 
   def initialize(app, api_prefix: nil)
     @app = app
-    @started = DateTime.now
+    @started = Time.now.to_f * 1000
     @api_prefix = api_prefix.presence || DEFAULT_PREFIX
     @api_prefix += '/' unless @api_prefix.end_with? '/'
     run_client
@@ -193,9 +193,9 @@ class RailsLogViewer
     begin
       event_log = @events[id]
       if started
-        event_log[:started]   ||= started
+        event_log[:started]   ||= started.to_f * 1000
         event_log[:ts]        ||= timestamp(started)
-        event_log[:finished]  ||= Time.now
+        event_log[:finished]  ||= Time.now.to_f * 1000
         event_log[:status]    ||= 500
       end
 
@@ -248,8 +248,8 @@ class RailsLogViewer
   end
 
   def app_stack(raw)
-    raw.find_all { |fn| fn.include?(@app_path) && fn.exclude?(__FILE__) }
-       .map { |fn| fn[@app_path.size..-1] }
+    raw.find_all { |f| f.include?(@app_path) && f.exclude?(__FILE__) && f.exclude?('/oracle_enhanced_adaptor.rb:') }
+       .map { |f| f[@app_path.size..-1] }
   end
 
   def process_event(event, started, finished, id, data)
@@ -257,11 +257,11 @@ class RailsLogViewer
     return if event[0] == '!'
 
     if event == 'start_processing.action_controller'
-      @events[id] ||= { ts: timestamp(started), started: started, view: [], orm: [] }
+      @events[id] ||= { ts: timestamp(started), started: started.to_f * 1000, view: [], orm: [] }
       return
     end
 
-    payload = data.merge(event: event, finished: finished)
+    payload = data.merge(event: event, finished: finished.to_f * 1000)
 
     if event == 'process_action.action_controller'
       payload[:controller].safe_constantize&.tap do |c|
@@ -290,7 +290,7 @@ class RailsLogViewer
     return unless e
 
     payload[:stack] = app_stack(caller)
-    payload[:started] = started
+    payload[:started] = started.to_f * 1000
     key = if event.match?(/\w+\.action_view/)
             :view
           else

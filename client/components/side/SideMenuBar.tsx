@@ -3,7 +3,7 @@ import React, { MouseEvent } from 'react';
 import { clearList } from '../../lib/actionsSlice';
 import { useAppDispatch, useAppSelector } from '../../lib/store';
 
-const SideMenuBar = () => {
+function SideMenuBar() {
   const dispatch = useAppDispatch();
 
   const rid = useAppSelector(({ connections }) => connections.selectedId);
@@ -21,6 +21,6 @@ const SideMenuBar = () => {
       <li><button type="button" disabled={!rid} onClick={onClickClear}>Clear</button></li>
     </ul>
   );
-};
+}
 
 export default SideMenuBar;

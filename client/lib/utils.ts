@@ -9,7 +9,7 @@ export const toSnakeCaseKeys = <T> (x: T): T => {
 
   if (isPlainObject(x)) {
     return Object.fromEntries(
-      Object.entries(x).map(([k, v]) => [snakeCase(k), toSnakeCaseKeys(v)]),
+      Object.entries(x as Object).map(([k, v]) => [snakeCase(k), toSnakeCaseKeys(v)]),
     ) as unknown as T;
   }
 
@@ -23,7 +23,7 @@ export const toCamelCaseKeys = <T> (x: T): T => {
 
   if (isPlainObject(x)) {
     return Object.fromEntries(
-      Object.entries(x).map(([k, v]) => [camelCase(k), toCamelCaseKeys(v)]),
+      Object.entries(x as Object).map(([k, v]) => [camelCase(k), toCamelCaseKeys(v)]),
     ) as unknown as T;
   }
 
@@ -31,7 +31,7 @@ export const toCamelCaseKeys = <T> (x: T): T => {
 };
 
 export const formatDuration = (span: number): string => (
-  span && span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${(span || 0).toFixed(0)}ms`
+  span && span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${(span || 0).toFixed(2)}ms`
 );
 
 export const getDurationColor = (dur: number): string => {
@@ -43,13 +43,11 @@ export const getDurationColor = (dur: number): string => {
   return 'text-blue-800';
 };
 
-export const getDuration = (started: string, finished: string): number => {
-  const tmBeg = new Date(started);
-  const tmEnd = new Date(finished);
-  return tmEnd.getTime() - tmBeg.getTime();
-};
+export const getDuration = (started: number, finished: number): number => (
+  finished - started
+);
 
-export const formatTime = (timestamp: string): string => {
+export const formatTime = (timestamp: number): string => {
   const time = new Date(timestamp);
   return `${time.toLocaleDateString()} ${time.toLocaleTimeString()}`;
 };

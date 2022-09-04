@@ -21,7 +21,7 @@ const updatePaths = (list: RailsConnection[]): void => {
 };
 
 const reorderConnections = (list: RailsConnection[]): void => {
-  list.sort((c1, c2) => Number(c2.connected) - Number(c1.connected) || c2.started.localeCompare(c1.started));
+  list.sort((c1, c2) => Number(c2.connected) - Number(c1.connected) || c2.started - c1.started);
 };
 
 const connectionsSlice = createSlice({

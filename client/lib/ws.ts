@@ -58,8 +58,8 @@ export const initWebsocket = () => {
     console.debug('onclose');
   };
 
-  ws.onerror = () => {
-    console.debug('onerror');
+  ws.onerror = (error) => {
+    console.warn('onerror', error);
   };
 };
 

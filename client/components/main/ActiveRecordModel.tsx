@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import sum from 'lodash/sum';
 
 import { OrmItemAr } from '../../lib/stackUtils';
 import ArItem from './ArItem';
+import { formatDuration, getDuration } from '../../lib/utils';
 
 interface ActiveRecordModelProps {
   model: string,
@@ -13,10 +14,15 @@ const countRecords = (items: OrmItemAr[]): number => sum(
   items.map(({ recordCount, repeated }) => (recordCount || 1) * (repeated || 1)),
 );
 
-const ActiveRecordModel = ({ model, items }: ActiveRecordModelProps) => {
+function ActiveRecordModel({ model, items }: ActiveRecordModelProps) {
   const [showItems, setShowItems] = useState(false);
 
   const count = countRecords(items);
+
+  const duration = useMemo(() => (
+    items.map(({ started, finished }) => getDuration(started, finished))
+      .reduce((s, n) => s + n, 0)
+  ), [items]);
 
   const onClickToggle = () => {
     setShowItems(!showItems);
@@ -34,7 +40,7 @@ const ActiveRecordModel = ({ model, items }: ActiveRecordModelProps) => {
         </button>
 
         <span>{model.padEnd(40)}</span>
-        <span className="text-indigo-600">{` [${items.length} - ${count}]`}</span>
+        <span className="text-indigo-600">{`${formatDuration(duration)} [${items.length} - ${count}]`}</span>
       </pre>
       {
         showItems ? items.map((item) => (
@@ -43,6 +49,6 @@ const ActiveRecordModel = ({ model, items }: ActiveRecordModelProps) => {
       }
     </div>
   );
-};
+}
 
 export default ActiveRecordModel;

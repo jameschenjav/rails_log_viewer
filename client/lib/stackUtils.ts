@@ -155,7 +155,6 @@ export const mergeOrmStack = ({ aid, orm: ormList }: ActionData): OrmStatistics 
 
     const rec = ('sql' in orm) ? buildSqlItem(orm, params) : buildArItem(orm, params);
     let last = items.at(-1);
-    // if (idx === 335) debugger;
     while (last && last.callStack === rec.callStack) {
       // ar -> sql
       if (!last.isSql && rec.isSql) break;

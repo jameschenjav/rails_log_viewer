@@ -8,7 +8,7 @@ interface ArItemProps {
   item: OrmItemAr,
 }
 
-const ArItem = ({ item }: ArItemProps) => {
+function ArItem({ item }: ArItemProps) {
   const [showStack, setShowStack] = useState(false);
 
   const runtime = getDuration(item.started, item.finished);
@@ -49,6 +49,6 @@ const ArItem = ({ item }: ArItemProps) => {
       }
     </div>
   );
-};
+}
 
 export default ArItem;

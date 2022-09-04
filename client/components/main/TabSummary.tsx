@@ -4,7 +4,7 @@ import {
   formatDuration, formatTime, getDuration, getStatusColor,
 } from '../../lib/utils';
 
-const TabSummary = ({ action: a }: ActionDataProps) => {
+function TabSummary({ action: a }: ActionDataProps) {
   const statusColor = getStatusColor(a.status);
   const totalRuntime = formatDuration(getDuration(a.started, a.finished));
   const sqlCalls = a.orm.filter((o) => !('sql' in o)).length;
@@ -74,6 +74,6 @@ const TabSummary = ({ action: a }: ActionDataProps) => {
       <pre className="p-3 text-xs bg-gray-100">{JSON.stringify(a.params, null, 2)}</pre>
     </div>
   );
-};
+}
 
 export default TabSummary;

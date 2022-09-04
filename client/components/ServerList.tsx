@@ -28,7 +28,7 @@ const formatServerInfo = (s: RailsConnection): JSX.Element => {
   return (<pre className={s.connected ? 'text-green-700' : 'text-red-700'}>{lines.join('\n')}</pre>);
 };
 
-const ServerList = () => {
+function ServerList() {
   const dispatch = useAppDispatch();
 
   const {
@@ -68,6 +68,6 @@ const ServerList = () => {
       <div>{`${list.length} Connections (${connectedCount} Open / ${list.length - connectedCount} Closed)`}</div>
     </header>
   );
-};
+}
 
 export default ServerList;

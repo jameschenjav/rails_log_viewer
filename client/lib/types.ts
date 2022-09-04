@@ -10,7 +10,7 @@ export interface PayloadServer {
   pid: string,
   port: number,
   ruby: string,
-  started: string,
+  started: number,
   version: string,
 }
 
@@ -30,9 +30,9 @@ export interface MessageClosed extends PayloadBase {
 
 interface EventBase {
   event: string,
-  finished: string,
+  finished: number,
   stack: string[],
-  started: string,
+  started: number,
 }
 
 export interface DataOrmSql extends EventBase {
@@ -62,14 +62,14 @@ interface PayloadData {
   controller: string,
   dbRuntime: number,
   event: string,
-  finished: string,
+  finished: number,
   format: string,
   method: string,
   orm: DataOrm[],
   params: { controller: string, action: string },
   path: string,
   source: [] | [string, number],
-  started: string,
+  started: number,
   status: number,
   ts: string,
   view: DataView[],
@@ -97,7 +97,7 @@ export interface RailsConnection {
   path: string,
   port: number,
   ruby: string,
-  started: string,
+  started: number,
   version: string,
   connected: boolean,
 }

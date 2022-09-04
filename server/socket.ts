@@ -3,7 +3,7 @@ import { unlink as unlinkSync } from 'fs';
 import { createServer, Server, Socket } from 'net';
 import { promisify } from 'util';
 
-import type { SocketStream } from 'fastify-websocket';
+import type { SocketStream } from '@fastify/websocket';
 
 import { server } from './server';
 
@@ -22,7 +22,7 @@ interface RailsMeta {
   port: number;
   rid: string;
   ruby: string;
-  started: string;
+  started: number;
   type: string;
   version: string;
 }

@@ -6,7 +6,7 @@ import ViewItem from './ViewItem';
 import { ActionDataProps } from '../../lib/types';
 import { mergeViewStack } from '../../lib/stackUtils';
 
-const TabView = ({ action }: ActionDataProps) => {
+function TabView({ action }: ActionDataProps) {
   const rootViews = useMemo(() => mergeViewStack(action), [action]);
 
   const views = [...action.view].map((view, idx) => ({
@@ -31,6 +31,6 @@ const TabView = ({ action }: ActionDataProps) => {
       }
     </div>
   );
-};
+}
 
 export default TabView;

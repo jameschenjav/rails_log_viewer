@@ -1,7 +1,7 @@
 import { env } from 'process';
-import fastifyCors from 'fastify-cors';
-import fastifyStatic from 'fastify-static';
-import fastifyWebsocket from 'fastify-websocket';
+import fastifyCors from '@fastify/cors';
+import fastifyStatic from '@fastify/static';
+import fastifyWebsocket from '@fastify/websocket';
 
 import {
   server, host, port, staticAssets,
@@ -14,9 +14,11 @@ server.register(fastifyWebsocket);
 
 server.register(fastifyCors);
 
-server.get('/api', { websocket: true }, (connection) => {
-  server.log.debug('GET /api');
-  wsConnectionHandler(connection);
+server.register(async () => {
+  server.get('/api', { websocket: true }, (connection) => {
+    server.log.debug('GET /api');
+    wsConnectionHandler(connection);
+  });
 });
 
 console.debug({ NODE_ENV: env.NODE_ENV });
@@ -35,7 +37,7 @@ if (env.NODE_ENV === 'development') {
 startIpc();
 const hb = startHeartBeat();
 
-server.listen(port, host, (err, address) => {
+server.listen({ port, host }, (err, address) => {
   stopHeartBeat(hb);
   if (err) {
     console.error(err);

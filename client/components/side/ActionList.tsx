@@ -6,7 +6,7 @@ import { choose } from '../../lib/actionsSlice';
 import { useAppDispatch, useAppSelector } from '../../lib/store';
 import { updateTabs } from '../../lib/uiSlice';
 
-const ActionList = () => {
+function ActionList() {
   const dispatch = useAppDispatch();
 
   const { rid, aid, list } = useAppSelector(({ connections, actions }) => ({
@@ -39,6 +39,6 @@ const ActionList = () => {
         }
     </ul>
   );
-};
+}
 
 export default ActionList;

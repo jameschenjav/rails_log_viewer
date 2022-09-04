@@ -5,7 +5,7 @@ import { ActionDataProps } from '../../lib/types';
 import ActiveRecordModel from './ActiveRecordModel';
 import SqlItem from './SqlItem';
 
-const TabOrm = ({ action }: ActionDataProps) => {
+function TabOrm({ action }: ActionDataProps) {
   const [showSqlItems, setShowSqlItems] = useState(false);
 
   const { models, sqlItems } = useMemo(() => mergeOrmStack(action), [action]);
@@ -44,6 +44,6 @@ const TabOrm = ({ action }: ActionDataProps) => {
       }
     </div>
   );
-};
+}
 
 export default TabOrm;

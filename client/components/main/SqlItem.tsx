@@ -14,7 +14,7 @@ const sqlTitle = (sql: string): string => {
   return (title.length > 50 || lines.length > 1 ? `${title.slice(0, 50)}...` : title).padEnd(54);
 };
 
-const SqlItem = ({ item, showSql = false }: SqlItemProps) => {
+function SqlItem({ item, showSql = false }: SqlItemProps) {
   const [showStack, setShowStack] = useState(false);
 
   const title = sqlTitle(item.sql);
@@ -60,6 +60,6 @@ const SqlItem = ({ item, showSql = false }: SqlItemProps) => {
       }
     </div>
   );
-};
+}
 
 export default SqlItem;

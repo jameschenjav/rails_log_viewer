@@ -4,7 +4,7 @@ import { useAppSelector } from '../lib/store';
 import ActionList from './side/ActionList';
 import SideMenuBar from './side/SideMenuBar';
 
-const SideSection = () => {
+function SideSection() {
   const rid = useAppSelector(({ connections }) => connections.selectedId);
 
   const aid = useAppSelector(({ actions }) => actions.selections[rid] || '');
@@ -15,6 +15,6 @@ const SideSection = () => {
       <ActionList />
     </aside>
   );
-};
+}
 
 export default SideSection;

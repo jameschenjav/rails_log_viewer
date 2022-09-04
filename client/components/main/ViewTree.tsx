@@ -8,7 +8,7 @@ interface ViewTreeProps {
   indent: number,
 }
 
-const ViewTree = ({ view: v, indent }: ViewTreeProps) => {
+function ViewTree({ view: v, indent }: ViewTreeProps) {
   const [showDetails, setShowDetails] = useState(false);
 
   const [showStack, setShowStack] = useState(false);
@@ -69,6 +69,6 @@ const ViewTree = ({ view: v, indent }: ViewTreeProps) => {
     }
     </div>
   );
-};
+}
 
 export default ViewTree;

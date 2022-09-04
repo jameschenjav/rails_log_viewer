@@ -6,7 +6,7 @@ import TabOrm from './main/TabOrm';
 import TabSummary from './main/TabSummary';
 import TabView from './main/TabView';
 
-const ActionViewer = () => {
+function ActionViewer() {
   const { rid, activeTab } = useAppSelector(({ ui, connections }) => ({
     rid: connections.selectedId,
     activeTab: ui.activeTab,
@@ -33,6 +33,6 @@ const ActionViewer = () => {
       </main>
     )
     : (<main className="text-center p-10 text-blue-500">No Selection</main>);
-};
+}
 
 export default ActionViewer;

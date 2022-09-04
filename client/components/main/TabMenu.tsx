@@ -13,7 +13,7 @@ const getTabText = (action: ActionData, tab: string): string => {
   }
 };
 
-const TabMenu = ({ action }: ActionDataProps) => {
+function TabMenu({ action }: ActionDataProps) {
   const { tabs, activeTab } = useAppSelector(({ ui }) => ui);
 
   const dispatch = useAppDispatch();
@@ -50,6 +50,6 @@ const TabMenu = ({ action }: ActionDataProps) => {
       }
     </ul>
   );
-};
+}
 
 export default TabMenu;
