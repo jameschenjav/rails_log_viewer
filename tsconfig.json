@@ -10,8 +10,8 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "ESNext",
-    "moduleResolution": "Node",
+    "module": "CommonJS",
+    "moduleResolution": "Node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react"
@@ -19,8 +19,7 @@
   "include": [
     "./client/**/*.ts",
     "./client/**/*.tsx",
-    "./server/*.ts",
-    "vite.config.ts"
+    "./server/*.ts"
   ],
   "exclude": [
     "node_modules"

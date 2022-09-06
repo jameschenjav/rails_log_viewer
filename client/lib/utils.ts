@@ -4,7 +4,7 @@ import snakeCase from 'lodash/snakeCase';
 
 export const toSnakeCaseKeys = <T> (x: T): T => {
   if (Array.isArray(x)) {
-    return (x as T[]).map(toSnakeCaseKeys) as unknown as T;
+    return (x as unknown[]).map(toSnakeCaseKeys) as T;
   }
 
   if (isPlainObject(x)) {
@@ -18,7 +18,7 @@ export const toSnakeCaseKeys = <T> (x: T): T => {
 
 export const toCamelCaseKeys = <T> (x: T): T => {
   if (Array.isArray(x)) {
-    return (x as T[]).map(toCamelCaseKeys) as unknown as T;
+    return (x as unknown[]).map(toCamelCaseKeys) as T;
   }
 
   if (isPlainObject(x)) {
@@ -30,9 +30,13 @@ export const toCamelCaseKeys = <T> (x: T): T => {
   return x;
 };
 
-export const formatDuration = (span: number): string => (
-  span && span > 1000 ? `${(span / 1000).toFixed(2)}s` : `${(span || 0).toFixed(2)}ms`
-);
+export const formatDuration = (span: number): string => {
+  const ms = span || 0;
+  if (ms > 1000) return `${(ms / 1000).toFixed(2)}s`;
+  if (ms > 100) return `${(ms).toFixed(0)}ms`;
+  if (ms > 10) return `${(ms).toFixed(1)}ms`;
+  return `${(ms).toFixed(2)}ms`;
+};
 
 export const getDurationColor = (dur: number): string => {
   if (dur < 200) return 'text-green-800';
