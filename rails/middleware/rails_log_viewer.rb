@@ -214,7 +214,7 @@ class RailsLogViewer
   CHUNK_LIMIT = CHUNK_SIZE - 32
 
   def split_chunks(data)
-    json = data.to_json
+    json = data.except(:headers).to_json
     raw_size = json.size
     if raw_size <= CHUNK_LIMIT
       # 8
@@ -295,7 +295,11 @@ class RailsLogViewer
             :view
           else
             if event.start_with? 'sql.'
-              payload[:binds] = data[:binds].map { |b| [b[0].name, b[1]] }
+              begin
+                payload[:binds] = data[:binds].map { |b| [b.name, b.value] }
+              rescue => e
+                binding.pry
+              end
             end
             :orm
           end
